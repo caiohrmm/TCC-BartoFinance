@@ -149,32 +149,48 @@ Auditoria automática de todas requisições.
 
 ### Investidores (`/investors`)
 - `POST /investors` - Criar investidor
-- `GET /investors` - Listar todos (com filtros opcionais)
+- `GET /investors` - Listar todos
+- `GET /investors?perfilInvestidor=CONSERVADOR` - **✨ NOVO:** Filtrar por perfil
 - `GET /investors/{id}` - Buscar por ID
 - `PUT /investors/{id}` - Atualizar investidor
 - `DELETE /investors/{id}` - Excluir investidor
 
 ### Carteiras (`/portfolios`)
 - `POST /portfolios` - Criar carteira
+- `POST /portfolios/simulate` - **✨ NOVO:** Simular desempenho (não salva)
 - `GET /portfolios` - Listar todas
+- `GET /portfolios/models` - Listar carteiras modelo
 - `GET /portfolios/{id}` - Buscar por ID
 - `PUT /portfolios/{id}` - Atualizar carteira
 - `DELETE /portfolios/{id}` - Excluir carteira
-- `POST /portfolios/simulate` - Simular desempenho
 
-### Aplicações (`/applications`)
-- `POST /applications` - Registrar aplicação
-- `GET /applications?portfolioId={id}` - Listar por carteira
+### Aplicações (`/applications`) - **✨ NOVO MÓDULO**
+- `POST /applications` - Registrar aplicação financeira
+- `GET /applications` - Listar todas
+- `GET /applications?portfolioId={id}` - Filtrar por carteira
+- `GET /applications?status=ATIVA` - Filtrar por status
+- `GET /applications?portfolioId={id}&status=ATIVA` - Filtros combinados
 - `GET /applications/{id}` - Buscar por ID
 - `PUT /applications/{id}` - Atualizar aplicação
 - `DELETE /applications/{id}` - Excluir aplicação
 
 ### Insights (`/insights`)
-- `POST /insights/generate` - Gerar insight com IA
-- `GET /insights?investorId={id}` - Listar insights do investidor
+- `POST /insights/generate` - Gerar insight com IA (mock Gemini)
+- `GET /insights` - Listar todos insights
+- `GET /insights?investorId={id}` - Filtrar por investidor
 
-### Logs (`/logs`) - Administrativo
-- `GET /logs` - Listar logs (com filtros)
+### Logs (`/logs`) - **✨ MELHORADO:** Agora com statusCode
+- `GET /logs` - Listar todos logs
+- `GET /logs?usuario={email}` - Filtrar por usuário
+- `GET /logs?endpoint={path}` - Filtrar por endpoint
+- `GET /logs?metodo=POST` - Filtrar por método HTTP
+- `GET /logs?sucesso=false` - Filtrar por sucesso/erro
+- `GET /logs/erros` - Listar apenas erros
+- `GET /logs/periodo?inicio={data}&fim={data}` - Filtrar por período
+
+### Health Checks (`/health`) - **✨ AGORA PÚBLICO**
+- `GET /health` - Status da aplicação (sem autenticação)
+- `GET /health/ping` - Teste de conectividade (sem autenticação)
 
 ---
 
@@ -186,6 +202,7 @@ Todas as requisições REST são interceptadas e logadas automaticamente via **S
 **Aspectos capturados:**
 - Endpoint acessado
 - Método HTTP (GET, POST, PUT, DELETE)
+- **✨ Status Code HTTP** (200, 201, 400, 404, 500, etc.)
 - Usuário autenticado (email do assessor)
 - IP do cliente
 - Sucesso ou falha da operação
@@ -357,6 +374,78 @@ src/test/java/com/bartofinance/
 - Unit Tests (Service layer)
 - Integration Tests (Controller + Service)
 - Repository Tests
+
+---
+
+## 🧪 Testando a API com Postman
+
+### Importar Collection Automática
+
+1. **Abra o Postman**
+2. **Importe os arquivos:**
+   - `BartoFinance.postman_collection.json` (collection completa)
+   - `BartoFinance.postman_environment.json` (variáveis de ambiente)
+
+3. **Selecione o environment** "BartoFinance - Local" no canto superior direito
+
+### ✨ Recursos Automáticos
+
+A collection foi projetada para **capturar automaticamente** tokens e IDs:
+
+#### 🔐 Token JWT Automático
+```javascript
+// Após fazer Register ou Login:
+✅ Token salvo automaticamente
+✅ Usado em todas as requisições protegidas
+```
+
+#### 🎯 IDs Capturados Automaticamente
+Ao criar recursos, os IDs são salvos e reutilizados:
+- **investidorId** → Capturado ao criar investidor
+- **portfolioId** → Capturado ao criar carteira
+- **aplicacaoId** → Capturado ao criar aplicação
+- **insightId** → Capturado ao gerar insight
+
+#### 📋 Como Usar (Passo a Passo)
+
+1. **Autenticação** (execute primeiro)
+   - `POST /auth/register` → Cria conta e captura token
+   - OU `POST /auth/login` → Faz login e captura token
+
+2. **Criar Investidor**
+   - `POST /investors` → Cria investidor e salva `investidorId`
+
+3. **Criar Carteira**
+   - `POST /portfolios` → Usa `investidorId` automaticamente, salva `portfolioId`
+
+4. **Criar Aplicação**
+   - `POST /applications` → Usa `portfolioId` automaticamente, salva `aplicacaoId`
+
+5. **Consultar, Atualizar, Deletar**
+   - Todas as requisições `GET`, `PUT`, `DELETE` usam os IDs salvos
+
+### 🔍 Console de Debug
+
+O Postman Console mostra os IDs capturados:
+```
+✅ Token salvo: eyJhbGciOiJIUzI1NiIsIn...
+✅ Investidor ID salvo: 67f8a...
+✅ Portfolio ID salvo: 67f8b...
+✅ Aplicação ID salvo: 67f8c...
+```
+
+### 🌐 Testar de Outro Dispositivo
+
+Para testar de outro computador na mesma rede:
+
+1. **Configure o base_url no environment:**
+   ```
+   http://SEU_IP_HAMACHI:8080
+   ```
+
+2. **Health Checks públicos (sem autenticação):**
+   - `GET /health` → Status da aplicação
+   - `GET /health/ping` → Teste de conectividade
 
 ---
 

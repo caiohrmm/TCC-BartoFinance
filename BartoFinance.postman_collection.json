@@ -1,27 +1,29 @@
 {
 	"info": {
-		"_postman_id": "bartofinance-api-collection",
-		"name": "BartoFinance API - Complete Collection",
-		"description": "Coleção completa de todas as rotas da API BartoFinance\n\n**Como usar:**\n1. Importe esta coleção no Postman\n2. Configure as variáveis de ambiente (base_url, token)\n3. Execute primeiro o Register/Login para obter o token\n4. O token será automaticamente salvo e usado nas requisições protegidas\n\n**Variáveis:**\n- `base_url`: http://localhost:8080\n- `token`: (preenchido automaticamente após login)",
+		"_postman_id": "bartofinance-api-v2",
+		"name": "BartoFinance API - Automática",
+		"description": "Collection completa com captura automática de tokens e IDs\n\n**🚀 Como usar:**\n1. Importe esta collection\n2. Importe o environment\n3. Execute as requisições em ordem - os IDs são capturados automaticamente!\n\n**✨ Recursos:**\n- Token JWT capturado automaticamente no login\n- IDs salvos automaticamente após criação\n- Variáveis reutilizáveis em todas as requests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "🔐 Autenticação",
+			"name": "🔐 1. Autenticação",
 			"item": [
 				{
-					"name": "Register - Cadastrar Assessor",
+					"name": "Register (Cadastrar Assessor)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
+									"// Captura automática do token e assessorId",
 									"if (pm.response.code === 200 || pm.response.code === 201) {",
-									"    var jsonData = pm.response.json();",
+									"    const jsonData = pm.response.json();",
 									"    if (jsonData.data && jsonData.data.token) {",
-									"        pm.environment.set(\"token\", jsonData.data.token);",
-									"        pm.environment.set(\"assessorId\", jsonData.data.assessorId);",
-									"        console.log(\"Token salvo automaticamente!\");",
+									"        pm.environment.set('token', jsonData.data.token);",
+									"        pm.environment.set('assessorId', jsonData.data.assessorId);",
+									"        console.log('✅ Token salvo:', jsonData.data.token.substring(0, 20) + '...');",
+									"        console.log('✅ Assessor ID:', jsonData.data.assessorId);",
 									"    }",
 									"}"
 								],
@@ -39,35 +41,31 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"nome\": \"João Silva\",\n  \"email\": \"joao.silva@bartofinance.com\",\n  \"senha\": \"senha123\"\n}"
+							"raw": "{\n  \"nome\": \"João Silva - Assessor\",\n  \"email\": \"joao.silva@bartofinance.com\",\n  \"senha\": \"SenhaForte123!\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/auth/register",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"auth",
-								"register"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
 						},
-						"description": "Cadastra um novo assessor no sistema.\n\n**Retorna:**\n- Token JWT (salvo automaticamente)\n- Dados do assessor"
-					},
-					"response": []
+						"description": "Cadastra novo assessor e **captura token automaticamente**"
+					}
 				},
 				{
-					"name": "Login - Obter Token",
+					"name": "Login (Obter Token)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
+									"// Captura automática do token e assessorId",
 									"if (pm.response.code === 200) {",
-									"    var jsonData = pm.response.json();",
+									"    const jsonData = pm.response.json();",
 									"    if (jsonData.data && jsonData.data.token) {",
-									"        pm.environment.set(\"token\", jsonData.data.token);",
-									"        pm.environment.set(\"assessorId\", jsonData.data.assessorId);",
-									"        console.log(\"Token salvo automaticamente!\");",
+									"        pm.environment.set('token', jsonData.data.token);",
+									"        pm.environment.set('assessorId', jsonData.data.assessorId);",
+									"        console.log('✅ Token salvo:', jsonData.data.token.substring(0, 20) + '...');",
+									"        console.log('✅ Assessor ID:', jsonData.data.assessorId);",
 									"    }",
 									"}"
 								],
@@ -76,6 +74,9 @@
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "noauth"
+						},
 						"method": "POST",
 						"header": [
 							{
@@ -85,27 +86,35 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"joao.silva@bartofinance.com\",\n  \"senha\": \"senha123\"\n}"
+							"raw": "{\n  \"email\": \"joao.silva@bartofinance.com\",\n  \"senha\": \"SenhaForte123!\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/auth/login",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"auth",
-								"login"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
 						},
-						"description": "Faz login e retorna token JWT válido por 24h.\n\n**O token é salvo automaticamente nas variáveis de ambiente.**"
-					},
-					"response": []
+						"description": "Login e **captura token automaticamente**"
+					}
+				},
+				{
+					"name": "Health Check (Auth)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/health",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "health"]
+						}
+					}
 				}
-			],
-			"description": "Endpoints de autenticação (públicos, não requerem token)"
+			]
 		},
 		{
-			"name": "👥 Investidores",
+			"name": "👤 2. Investidores",
 			"item": [
 				{
 					"name": "Criar Investidor",
@@ -114,11 +123,12 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"// Captura automática do investidorId",
 									"if (pm.response.code === 200 || pm.response.code === 201) {",
-									"    var jsonData = pm.response.json();",
+									"    const jsonData = pm.response.json();",
 									"    if (jsonData.data && jsonData.data.id) {",
-									"        pm.environment.set(\"investidorId\", jsonData.data.id);",
-									"        console.log(\"ID do investidor salvo: \" + jsonData.data.id);",
+									"        pm.environment.set('investidorId', jsonData.data.id);",
+									"        console.log('✅ Investidor ID salvo:', jsonData.data.id);",
 									"    }",
 									"}"
 								],
@@ -146,20 +156,15 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"nome\": \"Maria Santos\",\n  \"cpf\": \"12345678901\",\n  \"email\": \"maria.santos@email.com\",\n  \"telefone\": \"11987654321\",\n  \"perfilInvestidor\": \"MODERADO\",\n  \"patrimonioAtual\": 150000.00,\n  \"rendaMensal\": 8000.00,\n  \"objetivos\": \"Aposentadoria confortável e compra de imóvel\"\n}"
+							"raw": "{\n  \"nome\": \"Maria Santos\",\n  \"cpf\": \"12345678900\",\n  \"email\": \"maria.santos@email.com\",\n  \"telefone\": \"11987654321\",\n  \"perfilInvestidor\": \"MODERADO\",\n  \"patrimonioAtual\": 150000.00,\n  \"rendaMensal\": 8500.00,\n  \"objetivos\": \"Aposentadoria confortável e viagens\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/investors",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"investors"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["investors"]
 						},
-						"description": "Cria um novo investidor associado ao assessor autenticado.\n\n**Perfis disponíveis:**\n- CONSERVADOR\n- MODERADO\n- ARROJADO"
-					},
-					"response": []
+						"description": "Cria investidor e **salva ID automaticamente**"
+					}
 				},
 				{
 					"name": "Listar Todos Investidores",
@@ -178,19 +183,13 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/investors",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"investors"
-							]
-						},
-						"description": "Lista todos os investidores do assessor autenticado."
-					},
-					"response": []
+							"host": ["{{base_url}}"],
+							"path": ["investors"]
+						}
+					}
 				},
 				{
-					"name": "Listar Investidores (Com Filtros)",
+					"name": "Filtrar por Perfil (CONSERVADOR)",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -205,24 +204,18 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/investors?perfilInvestidor=MODERADO",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"investors"
-							],
+							"raw": "{{base_url}}/investors?perfilInvestidor=CONSERVADOR",
+							"host": ["{{base_url}}"],
+							"path": ["investors"],
 							"query": [
 								{
 									"key": "perfilInvestidor",
-									"value": "MODERADO",
-									"description": "Filtrar por perfil (CONSERVADOR, MODERADO, ARROJADO)"
+									"value": "CONSERVADOR"
 								}
 							]
 						},
-						"description": "Lista investidores com filtro por perfil."
-					},
-					"response": []
+						"description": "✨ NOVO: Filtro por perfil de investidor"
+					}
 				},
 				{
 					"name": "Buscar Investidor por ID",
@@ -241,17 +234,11 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/investors/{{investidorId}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"investors",
-								"{{investidorId}}"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["investors", "{{investidorId}}"]
 						},
-						"description": "Busca um investidor específico por ID."
-					},
-					"response": []
+						"description": "Usa o **investidorId salvo automaticamente**"
+					}
 				},
 				{
 					"name": "Atualizar Investidor",
@@ -275,24 +262,17 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"nome\": \"Maria Santos Silva\",\n  \"cpf\": \"12345678901\",\n  \"email\": \"maria.santos@email.com\",\n  \"telefone\": \"11987654321\",\n  \"perfilInvestidor\": \"ARROJADO\",\n  \"patrimonioAtual\": 200000.00,\n  \"rendaMensal\": 10000.00,\n  \"objetivos\": \"Aposentadoria confortável, compra de imóvel e viagens\"\n}"
+							"raw": "{\n  \"nome\": \"Maria Santos (Atualizado)\",\n  \"cpf\": \"12345678900\",\n  \"email\": \"maria.santos.novo@email.com\",\n  \"telefone\": \"11987654321\",\n  \"perfilInvestidor\": \"AGRESSIVO\",\n  \"patrimonioAtual\": 200000.00,\n  \"rendaMensal\": 12000.00,\n  \"objetivos\": \"Crescimento acelerado do patrimônio\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/investors/{{investidorId}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"investors",
-								"{{investidorId}}"
-							]
-						},
-						"description": "Atualiza os dados de um investidor."
-					},
-					"response": []
+							"host": ["{{base_url}}"],
+							"path": ["investors", "{{investidorId}}"]
+						}
+					}
 				},
 				{
-					"name": "Excluir Investidor",
+					"name": "Deletar Investidor",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -308,23 +288,15 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/investors/{{investidorId}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"investors",
-								"{{investidorId}}"
-							]
-						},
-						"description": "Exclui um investidor do sistema."
-					},
-					"response": []
+							"host": ["{{base_url}}"],
+							"path": ["investors", "{{investidorId}}"]
+						}
+					}
 				}
-			],
-			"description": "Endpoints para gerenciar investidores (requerem autenticação)"
+			]
 		},
 		{
-			"name": "💼 Carteiras de Investimento",
+			"name": "💼 3. Carteiras (Portfolios)",
 			"item": [
 				{
 					"name": "Criar Carteira",
@@ -333,11 +305,12 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"// Captura automática do portfolioId",
 									"if (pm.response.code === 200 || pm.response.code === 201) {",
-									"    var jsonData = pm.response.json();",
+									"    const jsonData = pm.response.json();",
 									"    if (jsonData.data && jsonData.data.id) {",
-									"        pm.environment.set(\"portfolioId\", jsonData.data.id);",
-									"        console.log(\"ID da carteira salvo: \" + jsonData.data.id);",
+									"        pm.environment.set('portfolioId', jsonData.data.id);",
+									"        console.log('✅ Portfolio ID salvo:', jsonData.data.id);",
 									"    }",
 									"}"
 								],
@@ -365,181 +338,15 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"nome\": \"Carteira Conservadora Renda Fixa\",\n  \"descricao\": \"Carteira focada em renda fixa com baixo risco e liquidez\",\n  \"tipo\": \"MODELO\",\n  \"risco\": \"BAIXO\",\n  \"metaRentabilidade\": 12.5\n}"
+							"raw": "{\n  \"nome\": \"Carteira Diversificada 2025\",\n  \"descricao\": \"Carteira balanceada com ações, FIIs e renda fixa\",\n  \"tipo\": \"PERSONALIZADA\",\n  \"risco\": \"MEDIO\",\n  \"metaRentabilidade\": 15.5,\n  \"investidorId\": \"{{investidorId}}\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/portfolios",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"portfolios"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["portfolios"]
 						},
-						"description": "Cria uma nova carteira de investimento.\n\n**Tipos:**\n- MODELO (carteira padrão)\n- PERSONALIZADA (associada a um investidor)\n\n**Riscos:**\n- BAIXO\n- MODERADO\n- ALTO"
-					},
-					"response": []
-				},
-				{
-					"name": "Criar Carteira Personalizada",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"nome\": \"Carteira Personalizada - Maria Santos\",\n  \"descricao\": \"Carteira customizada com foco em crescimento de longo prazo\",\n  \"tipo\": \"PERSONALIZADA\",\n  \"risco\": \"MODERADO\",\n  \"metaRentabilidade\": 18.0,\n  \"investidorId\": \"{{investidorId}}\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/portfolios",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"portfolios"
-							]
-						},
-						"description": "Cria uma carteira personalizada associada a um investidor específico."
-					},
-					"response": []
-				},
-				{
-					"name": "Listar Todas Carteiras",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/portfolios",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"portfolios"
-							]
-						},
-						"description": "Lista todas as carteiras do assessor."
-					},
-					"response": []
-				},
-				{
-					"name": "Buscar Carteira por ID",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/portfolios/{{portfolioId}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"portfolios",
-								"{{portfolioId}}"
-							]
-						},
-						"description": "Busca uma carteira específica por ID."
-					},
-					"response": []
-				},
-				{
-					"name": "Atualizar Carteira",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"nome\": \"Carteira Conservadora Renda Fixa Plus\",\n  \"descricao\": \"Carteira focada em renda fixa com baixo risco, alta liquidez e CDBs\",\n  \"tipo\": \"MODELO\",\n  \"risco\": \"BAIXO\",\n  \"metaRentabilidade\": 13.5\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/portfolios/{{portfolioId}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"portfolios",
-								"{{portfolioId}}"
-							]
-						},
-						"description": "Atualiza os dados de uma carteira."
-					},
-					"response": []
-				},
-				{
-					"name": "Excluir Carteira",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/portfolios/{{portfolioId}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"portfolios",
-								"{{portfolioId}}"
-							]
-						},
-						"description": "Exclui uma carteira do sistema."
-					},
-					"response": []
+						"description": "Cria carteira e **salva ID automaticamente**. Usa o investidorId capturado anteriormente."
+					}
 				},
 				{
 					"name": "Simular Desempenho de Carteira",
@@ -563,27 +370,140 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"nome\": \"Simulação Carteira Agressiva\",\n  \"descricao\": \"Simulação para cliente arrojado\",\n  \"tipo\": \"PERSONALIZADA\",\n  \"risco\": \"ALTO\",\n  \"metaRentabilidade\": 25.0\n}"
+							"raw": "{\n  \"nome\": \"Simulação - Carteira Agressiva\",\n  \"descricao\": \"Teste de carteira com alto risco\",\n  \"tipo\": \"PERSONALIZADA\",\n  \"risco\": \"ALTO\",\n  \"metaRentabilidade\": 25.0\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/portfolios/simulate",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"portfolios",
-								"simulate"
+							"host": ["{{base_url}}"],
+							"path": ["portfolios", "simulate"]
+						},
+						"description": "✨ NOVO: Simula o desempenho sem salvar no banco"
+					}
+				},
+				{
+					"name": "Listar Todas Carteiras",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
 							]
 						},
-						"description": "Simula o desempenho de uma carteira hipotética."
-					},
-					"response": []
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/portfolios",
+							"host": ["{{base_url}}"],
+							"path": ["portfolios"]
+						}
+					}
+				},
+				{
+					"name": "Listar Carteiras Modelo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/portfolios/models",
+							"host": ["{{base_url}}"],
+							"path": ["portfolios", "models"]
+						}
+					}
+				},
+				{
+					"name": "Buscar Carteira por ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/portfolios/{{portfolioId}}",
+							"host": ["{{base_url}}"],
+							"path": ["portfolios", "{{portfolioId}}"]
+						},
+						"description": "Usa o **portfolioId salvo automaticamente**"
+					}
+				},
+				{
+					"name": "Atualizar Carteira",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Carteira Atualizada 2025\",\n  \"descricao\": \"Carteira com nova estratégia\",\n  \"risco\": \"ALTO\",\n  \"metaRentabilidade\": 20.0\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/portfolios/{{portfolioId}}",
+							"host": ["{{base_url}}"],
+							"path": ["portfolios", "{{portfolioId}}"]
+						}
+					}
+				},
+				{
+					"name": "Deletar Carteira",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/portfolios/{{portfolioId}}",
+							"host": ["{{base_url}}"],
+							"path": ["portfolios", "{{portfolioId}}"]
+						}
+					}
 				}
-			],
-			"description": "Endpoints para gerenciar carteiras de investimento"
+			]
 		},
 		{
-			"name": "📊 Aplicações Financeiras",
+			"name": "💰 4. Aplicações Financeiras",
 			"item": [
 				{
 					"name": "Criar Aplicação",
@@ -592,11 +512,12 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"// Captura automática do aplicacaoId",
 									"if (pm.response.code === 200 || pm.response.code === 201) {",
-									"    var jsonData = pm.response.json();",
+									"    const jsonData = pm.response.json();",
 									"    if (jsonData.data && jsonData.data.id) {",
-									"        pm.environment.set(\"aplicacaoId\", jsonData.data.id);",
-									"        console.log(\"ID da aplicação salvo: \" + jsonData.data.id);",
+									"        pm.environment.set('aplicacaoId', jsonData.data.id);",
+									"        console.log('✅ Aplicação ID salvo:', jsonData.data.id);",
 									"    }",
 									"}"
 								],
@@ -624,23 +545,18 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"portfolioId\": \"{{portfolioId}}\",\n  \"tipoProduto\": \"ACAO\",\n  \"codigoAtivo\": \"PETR4\",\n  \"valorAplicado\": 5000.00,\n  \"quantidade\": 250,\n  \"dataCompra\": \"2024-01-15\",\n  \"rentabilidadeAtual\": 8.5,\n  \"status\": \"ATIVA\",\n  \"notas\": \"Compra inicial para diversificação\"\n}"
+							"raw": "{\n  \"portfolioId\": \"{{portfolioId}}\",\n  \"tipoProduto\": \"ACAO\",\n  \"codigoAtivo\": \"PETR4\",\n  \"valorAplicado\": 10000.00,\n  \"quantidade\": 500,\n  \"dataCompra\": \"2025-01-15T10:00:00\",\n  \"rentabilidadeAtual\": 5.2,\n  \"status\": \"ATIVA\",\n  \"notas\": \"Compra inicial de ações Petrobras\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/applications",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"applications"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["applications"]
 						},
-						"description": "Registra uma nova aplicação financeira na carteira.\n\n**Tipos de Produto:**\n- ACAO\n- LCI\n- LCA\n- CDB\n- TESOURO_DIRETO\n- FUNDO_IMOBILIARIO\n- FUNDO_INVESTIMENTO\n\n**Status:**\n- ATIVA\n- VENDIDA\n- EXPIRADA"
-					},
-					"response": []
+						"description": "✨ NOVO: Cria aplicação e **salva ID automaticamente**"
+					}
 				},
 				{
-					"name": "Criar Aplicação - CDB",
+					"name": "Listar Todas Aplicações",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -652,32 +568,17 @@
 								}
 							]
 						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"portfolioId\": \"{{portfolioId}}\",\n  \"tipoProduto\": \"CDB\",\n  \"codigoAtivo\": \"CDB-BANCO-XYZ-120\",\n  \"valorAplicado\": 10000.00,\n  \"quantidade\": 1,\n  \"dataCompra\": \"2024-01-10\",\n  \"rentabilidadeAtual\": 120.5,\n  \"status\": \"ATIVA\",\n  \"notas\": \"CDB com liquidez em 120 dias - 120% do CDI\"\n}"
-						},
+						"method": "GET",
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/applications",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"applications"
-							]
-						},
-						"description": "Exemplo de aplicação em CDB."
-					},
-					"response": []
+							"host": ["{{base_url}}"],
+							"path": ["applications"]
+						}
+					}
 				},
 				{
-					"name": "Listar Aplicações por Carteira",
+					"name": "Filtrar por Portfolio",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -693,26 +594,48 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/applications?portfolioId={{portfolioId}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"applications"
-							],
+							"host": ["{{base_url}}"],
+							"path": ["applications"],
 							"query": [
 								{
 									"key": "portfolioId",
-									"value": "{{portfolioId}}",
-									"description": "ID da carteira"
+									"value": "{{portfolioId}}"
 								}
 							]
 						},
-						"description": "Lista todas as aplicações de uma carteira específica."
-					},
-					"response": []
+						"description": "Usa o **portfolioId salvo automaticamente**"
+					}
 				},
 				{
-					"name": "Listar Aplicações Ativas",
+					"name": "Filtrar por Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/applications?status=ATIVA",
+							"host": ["{{base_url}}"],
+							"path": ["applications"],
+							"query": [
+								{
+									"key": "status",
+									"value": "ATIVA"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Filtrar por Portfolio e Status",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -728,12 +651,8 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/applications?portfolioId={{portfolioId}}&status=ATIVA",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"applications"
-							],
+							"host": ["{{base_url}}"],
+							"path": ["applications"],
 							"query": [
 								{
 									"key": "portfolioId",
@@ -741,14 +660,11 @@
 								},
 								{
 									"key": "status",
-									"value": "ATIVA",
-									"description": "Filtrar por status (ATIVA, VENDIDA, EXPIRADA)"
+									"value": "ATIVA"
 								}
 							]
-						},
-						"description": "Lista apenas aplicações ativas de uma carteira."
-					},
-					"response": []
+						}
+					}
 				},
 				{
 					"name": "Buscar Aplicação por ID",
@@ -767,17 +683,11 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/applications/{{aplicacaoId}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"applications",
-								"{{aplicacaoId}}"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["applications", "{{aplicacaoId}}"]
 						},
-						"description": "Busca uma aplicação específica por ID."
-					},
-					"response": []
+						"description": "Usa o **aplicacaoId salvo automaticamente**"
+					}
 				},
 				{
 					"name": "Atualizar Aplicação",
@@ -801,62 +711,17 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"portfolioId\": \"{{portfolioId}}\",\n  \"tipoProduto\": \"ACAO\",\n  \"codigoAtivo\": \"PETR4\",\n  \"valorAplicado\": 5000.00,\n  \"quantidade\": 250,\n  \"dataCompra\": \"2024-01-15\",\n  \"rentabilidadeAtual\": 12.8,\n  \"status\": \"ATIVA\",\n  \"notas\": \"Compra inicial para diversificação - Atualização de rentabilidade\"\n}"
+							"raw": "{\n  \"portfolioId\": \"{{portfolioId}}\",\n  \"tipoProduto\": \"ACAO\",\n  \"codigoAtivo\": \"PETR4\",\n  \"valorAplicado\": 12000.00,\n  \"quantidade\": 600,\n  \"dataCompra\": \"2025-01-15T10:00:00\",\n  \"rentabilidadeAtual\": 8.5,\n  \"status\": \"ATIVA\",\n  \"notas\": \"Aumentada posição em PETR4\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/applications/{{aplicacaoId}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"applications",
-								"{{aplicacaoId}}"
-							]
-						},
-						"description": "Atualiza os dados de uma aplicação (ex: rentabilidade, notas)."
-					},
-					"response": []
+							"host": ["{{base_url}}"],
+							"path": ["applications", "{{aplicacaoId}}"]
+						}
+					}
 				},
 				{
-					"name": "Vender Aplicação",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"portfolioId\": \"{{portfolioId}}\",\n  \"tipoProduto\": \"ACAO\",\n  \"codigoAtivo\": \"PETR4\",\n  \"valorAplicado\": 5000.00,\n  \"quantidade\": 250,\n  \"dataCompra\": \"2024-01-15\",\n  \"dataVenda\": \"2024-10-20\",\n  \"rentabilidadeAtual\": 15.2,\n  \"status\": \"VENDIDA\",\n  \"notas\": \"Venda realizada com lucro de 15.2%\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/applications/{{aplicacaoId}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"applications",
-								"{{aplicacaoId}}"
-							]
-						},
-						"description": "Registra a venda de uma aplicação."
-					},
-					"response": []
-				},
-				{
-					"name": "Excluir Aplicação",
+					"name": "Deletar Aplicação",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -872,26 +737,36 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/applications/{{aplicacaoId}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"applications",
-								"{{aplicacaoId}}"
-							]
-						},
-						"description": "Exclui uma aplicação do sistema."
-					},
-					"response": []
+							"host": ["{{base_url}}"],
+							"path": ["applications", "{{aplicacaoId}}"]
+						}
+					}
 				}
-			],
-			"description": "Endpoints para gerenciar aplicações financeiras (ativos) dentro das carteiras"
+			]
 		},
 		{
-			"name": "💡 Insights com IA",
+			"name": "🤖 5. Insights (IA)",
 			"item": [
 				{
-					"name": "Gerar Insight",
+					"name": "Gerar Insight para Investidor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Captura automática do insightId",
+									"if (pm.response.code === 200 || pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.id) {",
+									"        pm.environment.set('insightId', jsonData.data.id);",
+									"        console.log('✅ Insight ID salvo:', jsonData.data.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -912,100 +787,18 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"investidorId\": \"{{investidorId}}\",\n  \"tipo\": \"RECOMENDACAO\"\n}"
+							"raw": "{\n  \"investidorId\": \"{{investidorId}}\",\n  \"tipo\": \"RECOMENDACAO_PORTFOLIO\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/insights/generate",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"insights",
-								"generate"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["insights", "generate"]
 						},
-						"description": "Gera um insight personalizado usando IA simulada (mock Gemini).\n\n**Tipos:**\n- RECOMENDACAO\n- ALERTA\n- OPORTUNIDADE\n\nO insight é gerado com base no perfil do investidor."
-					},
-					"response": []
+						"description": "Gera insight de IA e **salva ID automaticamente**"
+					}
 				},
 				{
-					"name": "Gerar Insight - Alerta",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"investidorId\": \"{{investidorId}}\",\n  \"tipo\": \"ALERTA\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/insights/generate",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"insights",
-								"generate"
-							]
-						},
-						"description": "Gera um insight do tipo ALERTA."
-					},
-					"response": []
-				},
-				{
-					"name": "Gerar Insight - Oportunidade",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"investidorId\": \"{{investidorId}}\",\n  \"tipo\": \"OPORTUNIDADE\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/insights/generate",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"insights",
-								"generate"
-							]
-						},
-						"description": "Gera um insight do tipo OPORTUNIDADE."
-					},
-					"response": []
-				},
-				{
-					"name": "Listar Insights do Investidor",
+					"name": "Listar Insights",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -1020,69 +813,16 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/insights?investorId={{investidorId}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"insights"
-							],
-							"query": [
-								{
-									"key": "investorId",
-									"value": "{{investidorId}}",
-									"description": "ID do investidor"
-								}
-							]
-						},
-						"description": "Lista todos os insights gerados para um investidor específico."
-					},
-					"response": []
-				},
-				{
-					"name": "Listar Insights por Tipo",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/insights?investorId={{investidorId}}&tipo=RECOMENDACAO",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"insights"
-							],
-							"query": [
-								{
-									"key": "investorId",
-									"value": "{{investidorId}}"
-								},
-								{
-									"key": "tipo",
-									"value": "RECOMENDACAO",
-									"description": "RECOMENDACAO, ALERTA ou OPORTUNIDADE"
-								}
-							]
-						},
-						"description": "Lista insights filtrados por tipo."
-					},
-					"response": []
+							"raw": "{{base_url}}/insights",
+							"host": ["{{base_url}}"],
+							"path": ["insights"]
+						}
+					}
 				}
-			],
-			"description": "Endpoints para geração e consulta de insights com IA (mock Gemini)"
+			]
 		},
 		{
-			"name": "📝 Logs (Auditoria)",
+			"name": "📊 6. Logs & Auditoria",
 			"item": [
 				{
 					"name": "Listar Todos Logs",
@@ -1101,54 +841,14 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/logs",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"logs"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["logs"]
 						},
-						"description": "Lista todos os logs de auditoria do sistema.\n\n**Logs incluem:**\n- Usuário (email do assessor)\n- Endpoint acessado\n- Método HTTP\n- IP do cliente\n- Sucesso/Falha\n- Timestamp"
-					},
-					"response": []
+						"description": "✨ NOVO: Mostra statusCode de cada requisição"
+					}
 				},
 				{
-					"name": "Listar Logs com Falha",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/logs?sucesso=false",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"logs"
-							],
-							"query": [
-								{
-									"key": "sucesso",
-									"value": "false",
-									"description": "Filtrar logs de falha"
-								}
-							]
-						},
-						"description": "Lista apenas logs de requisições que falharam."
-					},
-					"response": []
-				},
-				{
-					"name": "Listar Logs por Usuário",
+					"name": "Filtrar Logs por Usuário",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -1164,26 +864,19 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/logs?usuario=joao.silva@bartofinance.com",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"logs"
-							],
+							"host": ["{{base_url}}"],
+							"path": ["logs"],
 							"query": [
 								{
 									"key": "usuario",
-									"value": "joao.silva@bartofinance.com",
-									"description": "Email do assessor"
+									"value": "joao.silva@bartofinance.com"
 								}
 							]
-						},
-						"description": "Lista logs de um usuário específico."
-					},
-					"response": []
+						}
+					}
 				},
 				{
-					"name": "Listar Logs por Endpoint",
+					"name": "Filtrar Logs por Endpoint",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -1199,68 +892,136 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/logs?endpoint=/investors",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"logs"
-							],
+							"host": ["{{base_url}}"],
+							"path": ["logs"],
 							"query": [
 								{
 									"key": "endpoint",
-									"value": "/investors",
-									"description": "Endpoint específico"
+									"value": "/investors"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Filtrar Logs por Método",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
 								}
 							]
 						},
-						"description": "Lista logs de um endpoint específico."
-					},
-					"response": []
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/logs?metodo=POST",
+							"host": ["{{base_url}}"],
+							"path": ["logs"],
+							"query": [
+								{
+									"key": "metodo",
+									"value": "POST"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Listar Apenas Erros",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/logs/erros",
+							"host": ["{{base_url}}"],
+							"path": ["logs", "erros"]
+						}
+					}
+				},
+				{
+					"name": "Logs por Período",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/logs/periodo?inicio=2025-01-01T00:00:00&fim=2025-12-31T23:59:59",
+							"host": ["{{base_url}}"],
+							"path": ["logs", "periodo"],
+							"query": [
+								{
+									"key": "inicio",
+									"value": "2025-01-01T00:00:00"
+								},
+								{
+									"key": "fim",
+									"value": "2025-12-31T23:59:59"
+								}
+							]
+						}
+					}
 				}
-			],
-			"description": "Endpoints administrativos para consulta de logs de auditoria (registrados automaticamente via AOP)"
+			]
 		},
 		{
-			"name": "🏥 Health Check",
+			"name": "❤️ 7. Health Checks",
 			"item": [
 				{
-					"name": "Health Check",
+					"name": "Health Check Principal",
 					"request": {
+						"auth": {
+							"type": "noauth"
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/health",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"health"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["health"]
 						},
-						"description": "Verifica se a API está funcionando."
-					},
-					"response": []
+						"description": "✨ AGORA PÚBLICO: Acessível sem token"
+					}
 				},
 				{
-					"name": "API Docs (JSON)",
+					"name": "Ping (Conectividade)",
 					"request": {
+						"auth": {
+							"type": "noauth"
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/api-docs",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api-docs"
-							]
-						},
-						"description": "Retorna a documentação OpenAPI em formato JSON."
-					},
-					"response": []
+							"raw": "{{base_url}}/health/ping",
+							"host": ["{{base_url}}"],
+							"path": ["health", "ping"]
+						}
+					}
 				}
-			],
-			"description": "Endpoints de verificação e documentação (públicos)"
+			]
 		}
 	],
 	"event": [
@@ -1269,7 +1030,8 @@
 			"script": {
 				"type": "text/javascript",
 				"exec": [
-					""
+					"// Script global executado antes de cada request",
+					"console.log('🚀 Executando request para:', pm.request.url);"
 				]
 			}
 		},
@@ -1278,42 +1040,10 @@
 			"script": {
 				"type": "text/javascript",
 				"exec": [
-					""
+					"// Script global executado após cada request",
+					"console.log('✅ Response code:', pm.response.code);"
 				]
 			}
 		}
-	],
-	"variable": [
-		{
-			"key": "base_url",
-			"value": "http://localhost:8080",
-			"type": "string"
-		},
-		{
-			"key": "token",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "assessorId",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "investidorId",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "portfolioId",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "aplicacaoId",
-			"value": "",
-			"type": "string"
-		}
 	]
 }
-
