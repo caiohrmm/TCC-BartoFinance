@@ -47,9 +47,24 @@ public class LoggingAspect {
 
         log.debug("Interceptando requisição: {} {} - Usuário: {}", metodo, endpoint, usuario);
 
+        Integer statusCode = 200;
+        boolean sucesso = true;
+        String mensagem = "Requisição executada com sucesso";
+
         try {
             // Executa o método
             Object result = joinPoint.proceed();
+
+            // Tenta inferir status code baseado no resultado
+            if (result != null && result.getClass().getSimpleName().contains("ResponseEntity")) {
+                try {
+                    org.springframework.http.ResponseEntity<?> response = (org.springframework.http.ResponseEntity<?>) result;
+                    statusCode = response.getStatusCode().value();
+                    sucesso = statusCode >= 200 && statusCode < 400;
+                } catch (Exception ex) {
+                    // Ignora se não conseguir extrair
+                }
+            }
 
             // Log de sucesso
             Log logEntry = Log.builder()
@@ -57,30 +72,49 @@ public class LoggingAspect {
                     .endpoint(endpoint)
                     .metodo(metodo)
                     .ip(ip)
-                    .sucesso(true)
-                    .mensagem("Requisição executada com sucesso")
+                    .statusCode(statusCode)
+                    .sucesso(sucesso)
+                    .mensagem(mensagem)
                     .timestamp(LocalDateTime.now())
                     .build();
 
             logRepository.save(logEntry);
-            log.debug("Log de sucesso registrado para: {} {}", metodo, endpoint);
+            log.debug("Log registrado para: {} {} [{}]", metodo, endpoint, statusCode);
 
             return result;
 
         } catch (Exception e) {
+            // Determina status code baseado no tipo de erro
+            statusCode = 500;
+            String errorClass = e.getClass().getSimpleName();
+            
+            if (errorClass.contains("ResourceNotFound") || errorClass.contains("NotFound")) {
+                statusCode = 404;
+            } else if (errorClass.contains("BadRequest") || errorClass.contains("Invalid") || errorClass.contains("Validation")) {
+                statusCode = 400;
+            } else if (errorClass.contains("Unauthorized") || errorClass.contains("Authentication")) {
+                statusCode = 401;
+            } else if (errorClass.contains("Forbidden") || errorClass.contains("AccessDenied")) {
+                statusCode = 403;
+            }
+
+            mensagem = "Erro: " + e.getMessage();
+            sucesso = false;
+
             // Log de erro
             Log logEntry = Log.builder()
                     .usuario(usuario)
                     .endpoint(endpoint)
                     .metodo(metodo)
                     .ip(ip)
-                    .sucesso(false)
-                    .mensagem("Erro: " + e.getMessage())
+                    .statusCode(statusCode)
+                    .sucesso(sucesso)
+                    .mensagem(mensagem)
                     .timestamp(LocalDateTime.now())
                     .build();
 
             logRepository.save(logEntry);
-            log.error("Log de erro registrado para: {} {} - Erro: {}", metodo, endpoint, e.getMessage());
+            log.error("Log de erro registrado para: {} {} [{}] - Erro: {}", metodo, endpoint, statusCode, e.getMessage());
 
             throw e;
         }

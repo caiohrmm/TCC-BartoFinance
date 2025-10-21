@@ -34,6 +34,8 @@ public class Log {
 
     private String ip;
 
+    private Integer statusCode; // HTTP Status Code (200, 400, 404, 500, etc.)
+
     private Boolean sucesso;
 
     private String mensagem;

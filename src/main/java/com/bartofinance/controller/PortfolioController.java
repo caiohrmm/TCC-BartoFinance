@@ -133,5 +133,22 @@ public class PortfolioController {
         
         return ResponseEntity.ok(ApiResponse.success("Carteira deletada com sucesso"));
     }
+
+    /**
+     * Simular desempenho de carteira
+     */
+    @PostMapping("/simulate")
+    @Operation(summary = "Simular carteira", description = "Simula o desempenho de uma carteira hipotética")
+    public ResponseEntity<ApiResponse<PortfolioResponse>> simularPortfolio(
+            @Valid @RequestBody PortfolioRequest request,
+            Authentication authentication) {
+        
+        log.info("POST /portfolios/simulate - Simulando carteira");
+        String assessorId = authUtil.getAssessorId(authentication);
+        
+        PortfolioResponse response = portfolioService.simularPortfolio(request, assessorId);
+        
+        return ResponseEntity.ok(ApiResponse.success("Simulação realizada com sucesso", response));
+    }
 }
 

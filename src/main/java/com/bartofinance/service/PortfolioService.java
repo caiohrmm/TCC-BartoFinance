@@ -134,6 +134,31 @@ public class PortfolioService {
         log.info("Portfolio deletado com sucesso: ID {}", id);
     }
 
+    /**
+     * Simula desempenho de um portfolio (sem salvar)
+     */
+    public PortfolioResponse simularPortfolio(PortfolioRequest request, String assessorId) {
+        log.info("Simulando portfolio: {} do tipo {} com risco {}", request.getNome(), request.getTipo(), request.getRisco());
+
+        // Cria portfolio temporário para simulação (não salva no banco)
+        InvestmentPortfolio portfolioSimulado = InvestmentPortfolio.builder()
+                .id("SIMULACAO-" + System.currentTimeMillis())
+                .nome(request.getNome())
+                .descricao(request.getDescricao())
+                .tipo(request.getTipo())
+                .risco(request.getRisco())
+                .metaRentabilidade(request.getMetaRentabilidade())
+                .rentabilidadeAtual(request.getMetaRentabilidade().multiply(new java.math.BigDecimal("0.8"))) // Simulação: 80% da meta
+                .valorTotal(java.math.BigDecimal.ZERO)
+                .investidorId(request.getInvestidorId())
+                .assessorId(assessorId)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        log.info("Simulação realizada: rentabilidade estimada de {}%", portfolioSimulado.getRentabilidadeAtual());
+        return mapToResponse(portfolioSimulado);
+    }
+
     private PortfolioResponse mapToResponse(InvestmentPortfolio portfolio) {
         return PortfolioResponse.builder()
                 .id(portfolio.getId())

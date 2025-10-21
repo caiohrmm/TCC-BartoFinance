@@ -5,6 +5,7 @@ import com.bartofinance.dto.response.InvestidorResponse;
 import com.bartofinance.exception.BadRequestException;
 import com.bartofinance.exception.ResourceNotFoundException;
 import com.bartofinance.model.Investidor;
+import com.bartofinance.model.enums.PerfilInvestidor;
 import com.bartofinance.repository.InvestidorRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,18 @@ public class InvestidorService {
         log.info("Listando investidores do assessor: {}", assessorId);
         return investidorRepository.findByAssessorId(assessorId)
                 .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Busca investidores por perfil
+     */
+    public List<InvestidorResponse> listarPorPerfil(String assessorId, String perfilInvestidor) {
+        log.info("Listando investidores do assessor: {} com perfil: {}", assessorId, perfilInvestidor);
+        return investidorRepository.findByPerfilInvestidor(PerfilInvestidor.valueOf(perfilInvestidor.toUpperCase()))
+                .stream()
+                .filter(inv -> inv.getAssessorId().equals(assessorId))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }

@@ -56,14 +56,21 @@ public class InvestidorController {
      * Listar todos os investidores do assessor
      */
     @GetMapping
-    @Operation(summary = "Listar investidores", description = "Lista todos os investidores do assessor autenticado")
+    @Operation(summary = "Listar investidores", description = "Lista todos os investidores do assessor autenticado, com filtro opcional por perfil")
     public ResponseEntity<ApiResponse<List<InvestidorResponse>>> listarInvestidores(
+            @RequestParam(required = false) String perfilInvestidor,
             Authentication authentication) {
         
-        log.info("GET /investors - Listando investidores");
+        log.info("GET /investors - Listando investidores, perfil={}", perfilInvestidor);
         String assessorId = authUtil.getAssessorId(authentication);
         
-        List<InvestidorResponse> response = investidorService.listarInvestidores(assessorId);
+        List<InvestidorResponse> response;
+        
+        if (perfilInvestidor != null && !perfilInvestidor.isBlank()) {
+            response = investidorService.listarPorPerfil(assessorId, perfilInvestidor);
+        } else {
+            response = investidorService.listarInvestidores(assessorId);
+        }
         
         return ResponseEntity.ok(ApiResponse.success("Investidores listados com sucesso", response));
     }

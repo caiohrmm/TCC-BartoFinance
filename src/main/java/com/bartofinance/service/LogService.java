@@ -25,7 +25,7 @@ public class LogService {
     /**
      * Registra um log de ação no sistema
      */
-    public void registrarLog(String usuario, String metodo, String endpoint, String mensagem, String ip, boolean sucesso) {
+    public void registrarLog(String usuario, String metodo, String endpoint, String mensagem, String ip, Integer statusCode, boolean sucesso) {
         try {
             Log logEntry = Log.builder()
                     .usuario(usuario)
@@ -33,36 +33,44 @@ public class LogService {
                     .endpoint(endpoint)
                     .mensagem(mensagem)
                     .ip(ip)
+                    .statusCode(statusCode)
                     .sucesso(sucesso)
                     .timestamp(LocalDateTime.now())
                     .build();
 
             logRepository.save(logEntry);
-            log.debug("Log registrado: {} {} - {}", metodo, endpoint, mensagem);
+            log.debug("Log registrado: {} {} [{}] - {}", metodo, endpoint, statusCode, mensagem);
         } catch (Exception e) {
             log.error("Erro ao salvar log no MongoDB: {}", e.getMessage());
         }
     }
 
     /**
+     * Registra um log de ação no sistema (método legado sem statusCode, usa 200 por padrão)
+     */
+    public void registrarLog(String usuario, String metodo, String endpoint, String mensagem, String ip, boolean sucesso) {
+        registrarLog(usuario, metodo, endpoint, mensagem, ip, sucesso ? 200 : 500, sucesso);
+    }
+
+    /**
      * Registra um log de sucesso
      */
     public void registrarSucesso(String usuario, String metodo, String endpoint, String ip) {
-        registrarLog(usuario, metodo, endpoint, "Operação realizada com sucesso", ip, true);
+        registrarLog(usuario, metodo, endpoint, "Operação realizada com sucesso", ip, 200, true);
     }
 
     /**
      * Registra um log de erro
      */
     public void registrarErro(String usuario, String metodo, String endpoint, String mensagem, String ip) {
-        registrarLog(usuario, metodo, endpoint, "Erro: " + mensagem, ip, false);
+        registrarLog(usuario, metodo, endpoint, "Erro: " + mensagem, ip, 500, false);
     }
 
     /**
      * Registra uma ação de sistema (sem usuário específico)
      */
     public void registrarAcaoSistema(String metodo, String endpoint, String mensagem, String ip, boolean sucesso) {
-        registrarLog("Sistema", metodo, endpoint, mensagem, ip, sucesso);
+        registrarLog("Sistema", metodo, endpoint, mensagem, ip, sucesso ? 200 : 500, sucesso);
     }
 
     /**
