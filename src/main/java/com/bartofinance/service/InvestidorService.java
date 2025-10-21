@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -31,9 +32,9 @@ public class InvestidorService {
     public InvestidorResponse criarInvestidor(InvestidorRequest request, String assessorId) {
         log.info("Criando novo investidor: {} para assessor: {}", request.getNome(), assessorId);
 
-        // Valida CPF único
-        if (investidorRepository.existsByCpf(request.getCpf())) {
-            throw new BadRequestException("CPF já cadastrado no sistema");
+        // Valida CPF único APENAS para este assessor
+        if (investidorRepository.existsByCpfAndAssessorId(request.getCpf(), assessorId)) {
+            throw new BadRequestException("CPF já cadastrado para este assessor");
         }
 
         Investidor investidor = Investidor.builder()
@@ -106,10 +107,12 @@ public class InvestidorService {
             throw new BadRequestException("Investidor não pertence a este assessor");
         }
 
-        // Valida CPF único (se alterado)
-        if (!investidor.getCpf().equals(request.getCpf()) && 
-            investidorRepository.existsByCpf(request.getCpf())) {
-            throw new BadRequestException("CPF já cadastrado no sistema");
+        // Valida CPF único (se alterado) APENAS para este assessor
+        if (!investidor.getCpf().equals(request.getCpf())) {
+            Optional<Investidor> investidorExistente = investidorRepository.findByCpfAndAssessorId(request.getCpf(), assessorId);
+            if (investidorExistente.isPresent() && !investidorExistente.get().getId().equals(id)) {
+                throw new BadRequestException("CPF já cadastrado para outro investidor deste assessor");
+            }
         }
 
         investidor.setNome(request.getNome());

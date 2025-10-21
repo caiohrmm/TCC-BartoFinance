@@ -35,11 +35,16 @@ public class InsightService {
     /**
      * Gera um novo insight para um investidor (Mock Gemini AI)
      */
-    public InsightResponse gerarInsight(String investidorId) {
+    public InsightResponse gerarInsight(String investidorId, String assessorId) {
         log.info("Gerando insight para investidor: {}", investidorId);
 
         Investidor investidor = investidorRepository.findById(investidorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Investidor", "id", investidorId));
+        
+        // Valida se o investidor pertence ao assessor
+        if (!investidor.getAssessorId().equals(assessorId)) {
+            throw new BadRequestException("Investidor não pertence a este assessor");
+        }
 
         // Gera insight baseado no perfil
         String textoInsight = gerarInsightPorPerfil(investidor);
@@ -62,8 +67,17 @@ public class InsightService {
     /**
      * Lista todos os insights de um investidor
      */
-    public List<InsightResponse> listarInsights(String investidorId) {
+    public List<InsightResponse> listarInsights(String investidorId, String assessorId) {
         log.info("Listando insights do investidor: {}", investidorId);
+        
+        // Valida se o investidor pertence ao assessor
+        Investidor investidor = investidorRepository.findById(investidorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Investidor", "id", investidorId));
+        
+        if (!investidor.getAssessorId().equals(assessorId)) {
+            throw new BadRequestException("Investidor não pertence a este assessor");
+        }
+        
         return insightRepository.findByInvestidorId(investidorId)
                 .stream()
                 .map(this::mapToResponse)

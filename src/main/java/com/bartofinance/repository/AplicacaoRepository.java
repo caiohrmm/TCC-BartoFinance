@@ -49,5 +49,21 @@ public interface AplicacaoRepository extends MongoRepository<Aplicacao, String> 
      * @return Lista de aplicações
      */
     List<Aplicacao> findByCodigoAtivo(String codigoAtivo);
+    
+    /**
+     * Busca aplicação por portfolio e código do ativo
+     * @param portfolioId ID do portfolio
+     * @param codigoAtivo Código do ativo
+     * @return Optional contendo a aplicação se encontrada
+     */
+    java.util.Optional<Aplicacao> findByPortfolioIdAndCodigoAtivo(String portfolioId, String codigoAtivo);
+    
+    /**
+     * Verifica se existe aplicação com código de ativo específico no portfolio
+     * @param portfolioId ID do portfolio
+     * @param codigoAtivo Código do ativo
+     * @return true se existir, false caso contrário
+     */
+    boolean existsByPortfolioIdAndCodigoAtivo(String portfolioId, String codigoAtivo);
 }
 

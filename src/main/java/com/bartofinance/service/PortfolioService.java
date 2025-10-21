@@ -4,8 +4,10 @@ import com.bartofinance.dto.request.PortfolioRequest;
 import com.bartofinance.dto.response.PortfolioResponse;
 import com.bartofinance.exception.BadRequestException;
 import com.bartofinance.exception.ResourceNotFoundException;
+import com.bartofinance.model.Investidor;
 import com.bartofinance.model.InvestmentPortfolio;
 import com.bartofinance.model.enums.TipoCarteira;
+import com.bartofinance.repository.InvestidorRepository;
 import com.bartofinance.repository.InvestmentPortfolioRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class PortfolioService {
 
     @Autowired
     private InvestmentPortfolioRepository portfolioRepository;
+    
+    @Autowired
+    private InvestidorRepository investidorRepository;
 
     /**
      * Cria uma nova carteira
@@ -32,9 +37,24 @@ public class PortfolioService {
     public PortfolioResponse criarPortfolio(PortfolioRequest request, String assessorId) {
         log.info("Criando nova carteira: {} para assessor: {}", request.getNome(), assessorId);
 
+        // Valida nome único por assessor
+        if (portfolioRepository.existsByNomeAndAssessorId(request.getNome(), assessorId)) {
+            throw new BadRequestException("Já existe uma carteira com este nome para este assessor");
+        }
+
         // Valida se é personalizada e tem investidorId
         if (request.getTipo() == TipoCarteira.PERSONALIZADA && request.getInvestidorId() == null) {
             throw new BadRequestException("Carteira personalizada deve ter um investidorId");
+        }
+        
+        // Valida se o investidor pertence ao assessor (quando fornecido)
+        if (request.getInvestidorId() != null) {
+            Investidor investidor = investidorRepository.findById(request.getInvestidorId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Investidor", "id", request.getInvestidorId()));
+            
+            if (!investidor.getAssessorId().equals(assessorId)) {
+                throw new BadRequestException("Investidor não pertence a este assessor");
+            }
         }
 
         InvestmentPortfolio portfolio = InvestmentPortfolio.builder()
@@ -104,6 +124,12 @@ public class PortfolioService {
 
         if (!portfolio.getAssessorId().equals(assessorId)) {
             throw new BadRequestException("Portfolio não pertence a este assessor");
+        }
+
+        // Valida nome único por assessor (se alterado)
+        if (!portfolio.getNome().equals(request.getNome()) && 
+            portfolioRepository.existsByNomeAndAssessorId(request.getNome(), assessorId)) {
+            throw new BadRequestException("Já existe uma carteira com este nome para este assessor");
         }
 
         portfolio.setNome(request.getNome());

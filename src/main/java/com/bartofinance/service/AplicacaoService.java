@@ -45,6 +45,11 @@ public class AplicacaoService {
         if (!portfolio.getAssessorId().equals(assessorId)) {
             throw new BadRequestException("Portfolio não pertence a este assessor");
         }
+        
+        // Valida se já existe aplicação com o mesmo código de ativo no portfolio
+        if (aplicacaoRepository.existsByPortfolioIdAndCodigoAtivo(request.getPortfolioId(), request.getCodigoAtivo())) {
+            throw new BadRequestException("Já existe uma aplicação com o código " + request.getCodigoAtivo() + " neste portfolio");
+        }
 
         Aplicacao aplicacao = Aplicacao.builder()
                 .portfolioId(request.getPortfolioId())
@@ -170,6 +175,16 @@ public class AplicacaoService {
 
         if (!portfolio.getAssessorId().equals(assessorId)) {
             throw new BadRequestException("Aplicação não pertence a este assessor");
+        }
+
+        // Valida se o código do ativo (se alterado) não conflita com outra aplicação do mesmo portfolio
+        if (!aplicacao.getCodigoAtivo().equals(request.getCodigoAtivo())) {
+            java.util.Optional<Aplicacao> aplicacaoExistente = aplicacaoRepository.findByPortfolioIdAndCodigoAtivo(
+                aplicacao.getPortfolioId(), request.getCodigoAtivo()
+            );
+            if (aplicacaoExistente.isPresent() && !aplicacaoExistente.get().getId().equals(id)) {
+                throw new BadRequestException("Já existe uma aplicação com o código " + request.getCodigoAtivo() + " neste portfolio");
+            }
         }
 
         aplicacao.setTipoProduto(request.getTipoProduto());

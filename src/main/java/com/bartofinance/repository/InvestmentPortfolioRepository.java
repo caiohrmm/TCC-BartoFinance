@@ -47,5 +47,13 @@ public interface InvestmentPortfolioRepository extends MongoRepository<Investmen
      * @return Lista de carteiras
      */
     List<InvestmentPortfolio> findByAssessorId(String assessorId);
+    
+    /**
+     * Verifica se existe uma carteira com nome específico para um assessor
+     * @param nome Nome da carteira
+     * @param assessorId ID do assessor
+     * @return true se existir, false caso contrário
+     */
+    boolean existsByNomeAndAssessorId(String nome, String assessorId);
 }
 

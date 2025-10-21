@@ -41,5 +41,21 @@ public interface InvestidorRepository extends MongoRepository<Investidor, String
      * @return true se existir, false caso contrário
      */
     boolean existsByCpf(String cpf);
+    
+    /**
+     * Verifica se existe um investidor com o CPF para um assessor específico
+     * @param cpf CPF a ser verificado
+     * @param assessorId ID do assessor
+     * @return true se existir, false caso contrário
+     */
+    boolean existsByCpfAndAssessorId(String cpf, String assessorId);
+    
+    /**
+     * Busca investidor por CPF e assessor
+     * @param cpf CPF do investidor
+     * @param assessorId ID do assessor
+     * @return Optional contendo o investidor se encontrado
+     */
+    Optional<Investidor> findByCpfAndAssessorId(String cpf, String assessorId);
 }
 
