@@ -45,10 +45,10 @@ public class AuthService {
         // Verifica se o email já existe
         if (assessorRepository.existsByEmail(request.getEmail())) {
             logger.warn("Tentativa de registro com email já existente: {}", request.getEmail());
-            logService.logAcaoSistema(
-                "REGISTER_FAILED",
-                "Tentativa de registro com email já existente: " + request.getEmail(),
+            logService.registrarAcaoSistema(
+                "POST",
                 "/auth/register",
+                "Tentativa de registro com email já existente: " + request.getEmail(),
                 ip,
                 false
             );
@@ -70,11 +70,11 @@ public class AuthService {
         String token = jwtUtil.generateToken(assessor.getEmail(), assessor.getId());
 
         // Registra log de sucesso
-        logService.logAcao(
-            assessor.getId(),
-            "REGISTER_SUCCESS",
-            "Novo assessor registrado: " + assessor.getNome(),
+        logService.registrarLog(
+            assessor.getEmail(),
+            "POST",
             "/auth/register",
+            "Novo assessor registrado: " + assessor.getNome(),
             ip,
             true
         );
@@ -100,10 +100,10 @@ public class AuthService {
         // Busca o assessor pelo email
         Assessor assessor = assessorRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> {
-                    logService.logAcaoSistema(
-                        "LOGIN_FAILED",
-                        "Tentativa de login com email não encontrado: " + request.getEmail(),
+                    logService.registrarAcaoSistema(
+                        "POST",
                         "/auth/login",
+                        "Tentativa de login com email não encontrado: " + request.getEmail(),
                         ip,
                         false
                     );
@@ -113,11 +113,11 @@ public class AuthService {
         // Verifica se o assessor está ativo
         if (!assessor.getAtivo()) {
             logger.warn("Tentativa de login de assessor inativo: {}", request.getEmail());
-            logService.logAcao(
-                assessor.getId(),
-                "LOGIN_FAILED",
-                "Tentativa de login de assessor inativo",
+            logService.registrarLog(
+                assessor.getEmail(),
+                "POST",
                 "/auth/login",
+                "Tentativa de login de assessor inativo",
                 ip,
                 false
             );
@@ -127,11 +127,11 @@ public class AuthService {
         // Verifica a senha
         if (!passwordEncoder.matches(request.getSenha(), assessor.getSenha())) {
             logger.warn("Senha incorreta para: {}", request.getEmail());
-            logService.logAcao(
-                assessor.getId(),
-                "LOGIN_FAILED",
-                "Senha incorreta",
+            logService.registrarLog(
+                assessor.getEmail(),
+                "POST",
                 "/auth/login",
+                "Senha incorreta",
                 ip,
                 false
             );
@@ -146,11 +146,11 @@ public class AuthService {
         String token = jwtUtil.generateToken(assessor.getEmail(), assessor.getId());
 
         // Registra log de sucesso
-        logService.logAcao(
-            assessor.getId(),
-            "LOGIN_SUCCESS",
-            "Login realizado com sucesso",
+        logService.registrarLog(
+            assessor.getEmail(),
+            "POST",
             "/auth/login",
+            "Login realizado com sucesso",
             ip,
             true
         );

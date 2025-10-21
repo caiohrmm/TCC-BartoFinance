@@ -1,20 +1,23 @@
 package com.bartofinance.model;
 
+import com.bartofinance.model.enums.TipoRelatorio;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * Entidade representando um Relatório de Investimentos
  * 
- * Consolida informações sobre aplicações e rendimentos de um investidor
- * em um período específico.
+ * Consolida informações sobre investidores ou carteiras.
+ * Armazena dados resumidos para consultas rápidas.
  */
 @Data
 @Builder
@@ -26,23 +29,21 @@ public class Relatorio {
     @Id
     private String id;
 
-    private String investidorId; // Referência ao Investidor
+    private TipoRelatorio tipo; // INVESTIDOR ou CARTEIRA
 
-    private LocalDateTime periodoInicio;
+    private String referenciaId; // ID do investidor ou carteira
 
-    private LocalDateTime periodoFim;
+    private Map<String, Object> dadosResumo; // Dados flexíveis em formato JSON
 
     @Builder.Default
     private BigDecimal totalAplicado = BigDecimal.ZERO;
 
     @Builder.Default
-    private BigDecimal totalRendimento = BigDecimal.ZERO;
+    private BigDecimal rendimento = BigDecimal.ZERO;
 
-    private String observacoes;
+    private String criadoPor; // ID do assessor
 
-    private LocalDateTime geradoEm;
-
-    @Builder.Default
-    private Boolean insightsGerados = false;
+    @CreatedDate
+    private LocalDateTime createdAt;
 }
 

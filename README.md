@@ -9,15 +9,26 @@
 
 O **BartoFinance** é um sistema completo de assessoria de investimentos, projetado para centralizar e gerenciar informações de investidores, aplicações, relatórios e insights gerados por IA. O sistema é voltado para uso exclusivo de assessores financeiros, com autenticação JWT e suporte a múltiplos assessores em contas distintas.
 
+### 🎉 NOVIDADES - Backend Expandido! (Out/2025)
+
+- ⭐ **Logging Automático com AOP** - Todos os requests são logados automaticamente sem código extra
+- 🏦 **Gestão de Portfolios** - Carteiras modelo e personalizadas com classificação de risco
+- 🤖 **Insights Personalizados** - Mock Gemini gerando recomendações por perfil de risco
+- 🔧 **AuthUtil** - Extração simplificada de dados do token JWT
+- 📊 **18+ Endpoints** REST funcionais e documentados
+- ✅ **Validações Completas** - Bean Validation em todos os inputs
+- 📚 **Documentação Expandida** - 9 novos arquivos de guias e tutoriais
+
 ### 🎯 Características Principais
 
 - ✅ **Autenticação JWT** - Segurança robusta com tokens JWT
 - 📊 **Gestão de Investidores** - CRUD completo de investidores e seus perfis
+- 🏦 **Gestão de Portfolios** - Carteiras modelo (templates) e personalizadas
 - 💰 **Controle de Aplicações** - Gerenciamento de investimentos em diversos produtos financeiros
 - 📈 **Relatórios Detalhados** - Geração de relatórios com análise de rentabilidade
-- 🤖 **Insights com IA** - Integração futura com Gemini AI para análises inteligentes
-- 📝 **Sistema de Logs** - Auditoria completa de todas as ações do sistema
-- 🔒 **Segurança** - Senhas criptografadas com BCrypt e validação de tokens
+- 🤖 **Insights com IA** - Mock Gemini para análises inteligentes (pronto para API real)
+- 📝 **Logging AOP** - Auditoria automática de todas as requisições
+- 🔒 **Segurança Multi-Camada** - BCrypt + JWT + validação de propriedade
 
 ---
 

@@ -8,17 +8,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Repository para operações de persistência de Logs
+ * Repository para operações de persistência de Logs via AOP
  */
 @Repository
 public interface LogRepository extends MongoRepository<Log, String> {
     
     /**
-     * Busca todos os logs de um assessor
-     * @param assessorId ID do assessor
+     * Busca todos os logs de um usuário
+     * @param usuario Email ou ID do usuário
      * @return Lista de logs
      */
-    List<Log> findByAssessorId(String assessorId);
+    List<Log> findByUsuario(String usuario);
     
     /**
      * Busca logs por sucesso/falha
@@ -28,11 +28,18 @@ public interface LogRepository extends MongoRepository<Log, String> {
     List<Log> findBySucesso(Boolean sucesso);
     
     /**
-     * Busca logs por ação
-     * @param acao Ação realizada
+     * Busca logs por endpoint
+     * @param endpoint Endpoint acessado
      * @return Lista de logs
      */
-    List<Log> findByAcao(String acao);
+    List<Log> findByEndpoint(String endpoint);
+    
+    /**
+     * Busca logs por método HTTP
+     * @param metodo Método HTTP (GET, POST, PUT, DELETE)
+     * @return Lista de logs
+     */
+    List<Log> findByMetodo(String metodo);
     
     /**
      * Busca logs em um período de tempo

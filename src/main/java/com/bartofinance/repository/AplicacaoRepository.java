@@ -15,11 +15,11 @@ import java.util.List;
 public interface AplicacaoRepository extends MongoRepository<Aplicacao, String> {
     
     /**
-     * Busca todas as aplicações de um investidor
-     * @param investidorId ID do investidor
+     * Busca todas as aplicações de uma carteira
+     * @param portfolioId ID da carteira
      * @return Lista de aplicações
      */
-    List<Aplicacao> findByInvestidorId(String investidorId);
+    List<Aplicacao> findByPortfolioId(String portfolioId);
     
     /**
      * Busca aplicações por status
@@ -29,12 +29,12 @@ public interface AplicacaoRepository extends MongoRepository<Aplicacao, String> 
     List<Aplicacao> findByStatus(StatusAplicacao status);
     
     /**
-     * Busca aplicações de um investidor por status
-     * @param investidorId ID do investidor
+     * Busca aplicações de uma carteira por status
+     * @param portfolioId ID da carteira
      * @param status Status da aplicação
      * @return Lista de aplicações
      */
-    List<Aplicacao> findByInvestidorIdAndStatus(String investidorId, StatusAplicacao status);
+    List<Aplicacao> findByPortfolioIdAndStatus(String portfolioId, StatusAplicacao status);
     
     /**
      * Busca aplicações por tipo de produto
@@ -42,5 +42,12 @@ public interface AplicacaoRepository extends MongoRepository<Aplicacao, String> 
      * @return Lista de aplicações
      */
     List<Aplicacao> findByTipoProduto(TipoProduto tipoProduto);
+    
+    /**
+     * Busca aplicações por código do ativo
+     * @param codigoAtivo Código do ativo
+     * @return Lista de aplicações
+     */
+    List<Aplicacao> findByCodigoAtivo(String codigoAtivo);
 }
 

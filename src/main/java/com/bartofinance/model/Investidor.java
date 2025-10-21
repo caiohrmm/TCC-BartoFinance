@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -41,14 +42,19 @@ public class Investidor {
     private PerfilInvestidor perfilInvestidor;
 
     @Builder.Default
-    private BigDecimal patrimonio = BigDecimal.ZERO;
+    private BigDecimal patrimonioAtual = BigDecimal.ZERO;
 
     @Builder.Default
     private BigDecimal rendaMensal = BigDecimal.ZERO;
 
-    @CreatedDate
-    private LocalDateTime dataCadastro;
+    private String objetivos;
 
     private String assessorId; // Referência ao Assessor responsável
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 }
 

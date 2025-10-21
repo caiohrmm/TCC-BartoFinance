@@ -2,8 +2,7 @@ package com.bartofinance.service;
 
 import com.bartofinance.model.Log;
 import com.bartofinance.repository.LogRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,78 +10,100 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Serviço responsável por gerenciar logs de auditoria do sistema
+ * Service para gerenciamento de Logs do sistema
+ * 
+ * Nota: A maioria dos logs agora é gerada automaticamente pelo LoggingAspect (AOP).
+ * Este service é mantido para logs customizados quando necessário.
  */
 @Service
+@Slf4j
 public class LogService {
-
-    private static final Logger logger = LoggerFactory.getLogger(LogService.class);
 
     @Autowired
     private LogRepository logRepository;
 
     /**
-     * Registra uma ação do assessor no sistema
+     * Registra um log de ação no sistema
      */
-    public void logAcao(String assessorId, String acao, String descricao, String endpoint, String ip, Boolean sucesso) {
+    public void registrarLog(String usuario, String metodo, String endpoint, String mensagem, String ip, boolean sucesso) {
         try {
-            Log log = Log.builder()
-                    .assessorId(assessorId)
-                    .acao(acao)
-                    .descricao(descricao)
+            Log logEntry = Log.builder()
+                    .usuario(usuario)
+                    .metodo(metodo)
                     .endpoint(endpoint)
-                    .timestamp(LocalDateTime.now())
+                    .mensagem(mensagem)
                     .ip(ip)
                     .sucesso(sucesso)
+                    .timestamp(LocalDateTime.now())
                     .build();
 
-            logRepository.save(log);
-            
-            logger.info("Log registrado: {} - {} - Sucesso: {}", acao, descricao, sucesso);
+            logRepository.save(logEntry);
+            log.debug("Log registrado: {} {} - {}", metodo, endpoint, mensagem);
         } catch (Exception e) {
-            logger.error("Erro ao salvar log no MongoDB: {}", e.getMessage());
+            log.error("Erro ao salvar log no MongoDB: {}", e.getMessage());
         }
     }
 
     /**
-     * Registra uma ação de sistema (sem assessor específico)
+     * Registra um log de sucesso
      */
-    public void logAcaoSistema(String acao, String descricao, String endpoint, String ip, Boolean sucesso) {
-        logAcao(null, acao, descricao, endpoint, ip, sucesso);
+    public void registrarSucesso(String usuario, String metodo, String endpoint, String ip) {
+        registrarLog(usuario, metodo, endpoint, "Operação realizada com sucesso", ip, true);
     }
 
     /**
-     * Busca todos os logs de um assessor
+     * Registra um log de erro
      */
-    public List<Log> getLogsByAssessor(String assessorId) {
-        return logRepository.findByAssessorId(assessorId);
+    public void registrarErro(String usuario, String metodo, String endpoint, String mensagem, String ip) {
+        registrarLog(usuario, metodo, endpoint, "Erro: " + mensagem, ip, false);
     }
 
     /**
-     * Busca logs por ação
+     * Registra uma ação de sistema (sem usuário específico)
      */
-    public List<Log> getLogsByAcao(String acao) {
-        return logRepository.findByAcao(acao);
+    public void registrarAcaoSistema(String metodo, String endpoint, String mensagem, String ip, boolean sucesso) {
+        registrarLog("Sistema", metodo, endpoint, mensagem, ip, sucesso);
     }
 
     /**
-     * Busca logs em um período
+     * Busca logs de um usuário
      */
-    public List<Log> getLogsByPeriodo(LocalDateTime inicio, LocalDateTime fim) {
-        return logRepository.findByTimestampBetween(inicio, fim);
+    public List<Log> buscarLogsPorUsuario(String usuario) {
+        return logRepository.findByUsuario(usuario);
     }
 
     /**
-     * Busca logs com falha
+     * Busca logs por endpoint
      */
-    public List<Log> getLogsFalhas() {
+    public List<Log> buscarLogsPorEndpoint(String endpoint) {
+        return logRepository.findByEndpoint(endpoint);
+    }
+
+    /**
+     * Busca logs por método HTTP
+     */
+    public List<Log> buscarLogsPorMetodo(String metodo) {
+        return logRepository.findByMetodo(metodo);
+    }
+
+    /**
+     * Busca logs com erro (sucesso = false)
+     */
+    public List<Log> buscarLogsComErro() {
         return logRepository.findBySucesso(false);
+    }
+
+    /**
+     * Busca logs por período
+     */
+    public List<Log> buscarLogsPorPeriodo(LocalDateTime inicio, LocalDateTime fim) {
+        return logRepository.findByTimestampBetween(inicio, fim);
     }
 
     /**
      * Busca todos os logs
      */
-    public List<Log> getAllLogs() {
+    public List<Log> buscarTodosLogs() {
         return logRepository.findAll();
     }
 }

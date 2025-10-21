@@ -74,10 +74,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             
             // Registra tentativa de acesso com token inválido
             String ip = request.getRemoteAddr();
-            logService.logAcaoSistema(
-                "JWT_VALIDATION_FAILED", 
-                "Falha na validação do token JWT: " + e.getMessage(),
+            logService.registrarAcaoSistema(
+                request.getMethod(),
                 request.getRequestURI(),
+                "Falha na validação do token JWT: " + e.getMessage(),
                 ip,
                 false
             );
