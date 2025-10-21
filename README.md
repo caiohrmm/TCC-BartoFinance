@@ -1,74 +1,250 @@
-# 🏦 BartoFinance - Sistema de Assessoria de Investimentos
+# BartoFinance - Sistema de Assessoria de Investimentos
 
-[![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![MongoDB](https://img.shields.io/badge/MongoDB-Latest-green.svg)](https://www.mongodb.com/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+Sistema backend completo para assessores financeiros gerenciarem investidores, carteiras de investimento, aplicações financeiras, relatórios e insights com IA.
+
+---
 
 ## 📋 Sobre o Projeto
 
-O **BartoFinance** é um sistema completo de assessoria de investimentos, projetado para centralizar e gerenciar informações de investidores, aplicações, relatórios e insights gerados por IA. O sistema é voltado para uso exclusivo de assessores financeiros, com autenticação JWT e suporte a múltiplos assessores em contas distintas.
+**BartoFinance** é uma plataforma exclusiva para assessores de investimento que centraliza:
 
-### 🎉 NOVIDADES - Backend Expandido! (Out/2025)
+- **Gestão de Investidores**: Cadastro completo com perfil de risco e objetivos
+- **Carteiras de Investimento**: Criação de carteiras modelo ou personalizadas
+- **Aplicações Financeiras**: Controle de ações, LCI, LCA, CDB, fundos e outros ativos
+- **Relatórios Detalhados**: Análise de rentabilidade e evolução patrimonial
+- **Insights com IA**: Recomendações geradas por IA simulada (mock Gemini)
+- **Auditoria Completa**: Logs automáticos de todas operações via AOP
 
-- ⭐ **Logging Automático com AOP** - Todos os requests são logados automaticamente sem código extra
-- 🏦 **Gestão de Portfolios** - Carteiras modelo e personalizadas com classificação de risco
-- 🤖 **Insights Personalizados** - Mock Gemini gerando recomendações por perfil de risco
-- 🔧 **AuthUtil** - Extração simplificada de dados do token JWT
-- 📊 **18+ Endpoints** REST funcionais e documentados
-- ✅ **Validações Completas** - Bean Validation em todos os inputs
-- 📚 **Documentação Expandida** - 9 novos arquivos de guias e tutoriais
+---
 
-### 🎯 Características Principais
+## 🚀 Tecnologias
 
-- ✅ **Autenticação JWT** - Segurança robusta com tokens JWT
-- 📊 **Gestão de Investidores** - CRUD completo de investidores e seus perfis
-- 🏦 **Gestão de Portfolios** - Carteiras modelo (templates) e personalizadas
-- 💰 **Controle de Aplicações** - Gerenciamento de investimentos em diversos produtos financeiros
-- 📈 **Relatórios Detalhados** - Geração de relatórios com análise de rentabilidade
-- 🤖 **Insights com IA** - Mock Gemini para análises inteligentes (pronto para API real)
-- 📝 **Logging AOP** - Auditoria automática de todas as requisições
-- 🔒 **Segurança Multi-Camada** - BCrypt + JWT + validação de propriedade
+### Backend
+- **Java 17** - Linguagem principal
+- **Spring Boot 3.2.0** - Framework web
+- **Spring Security** - Autenticação e autorização
+- **Spring Data MongoDB** - Persistência de dados
+- **JWT (jjwt 0.12.3)** - Tokens de autenticação
+- **Spring AOP** - Logs automáticos
+- **Lombok** - Redução de boilerplate
+- **Swagger/OpenAPI** - Documentação da API
+
+### Banco de Dados
+- **MongoDB 7** - NoSQL Database
+
+### Build & Deploy
+- **Maven** - Gerenciamento de dependências
+- **Docker Compose** - Containerização (opcional)
 
 ---
 
 ## 🏗️ Arquitetura
 
-### Stack Tecnológica
-
-**Backend:**
-- **Linguagem:** Java 17
-- **Framework:** Spring Boot 3.2.0
-- **Banco de Dados:** MongoDB
-- **Autenticação:** JWT (JSON Web Tokens)
-- **Segurança:** Spring Security + BCrypt
-- **Logging:** SLF4J + Spring AOP
-- **Documentação:** Swagger/OpenAPI 3.0
-- **Build:** Maven
-
-### Estrutura do Projeto
-
 ```
-bartofinance-backend/
-├── src/
-│   ├── main/
-│   │   ├── java/com/bartofinance/
-│   │   │   ├── config/           # Configurações (Security, CORS, etc)
-│   │   │   ├── controller/       # Controllers REST
-│   │   │   ├── dto/              # Data Transfer Objects
-│   │   │   │   ├── request/      # DTOs de requisição
-│   │   │   │   └── response/     # DTOs de resposta
-│   │   │   ├── exception/        # Exceções customizadas
-│   │   │   ├── model/            # Entidades do domínio
-│   │   │   │   └── enums/        # Enumerações
-│   │   │   ├── repository/       # Repositories MongoDB
-│   │   │   ├── security/         # Configurações JWT e Segurança
-│   │   │   └── service/          # Lógica de negócio
-│   │   └── resources/
-│   │       └── application.yml   # Configurações da aplicação
-│   └── test/                     # Testes unitários e integração
-├── pom.xml                       # Dependências Maven
-└── README.md                     # Este arquivo
+com.bartofinance/
+├── aspect/           # Logging AOP
+├── config/           # Configurações (Security, Swagger)
+├── controller/       # REST Controllers
+├── dto/              # Data Transfer Objects
+│   ├── request/      # DTOs de entrada
+│   └── response/     # DTOs de saída
+├── exception/        # Exceções customizadas
+├── handler/          # GlobalExceptionHandler
+├── model/            # Entidades do domínio
+│   └── enums/        # Enumerações
+├── repository/       # Interfaces MongoDB
+├── security/         # JWT Filter, JwtUtil
+├── service/          # Lógica de negócio
+└── util/             # Utilitários (AuthUtil)
+```
+
+**Padrões Aplicados:**
+- Clean Architecture
+- Repository Pattern
+- DTO Pattern
+- AOP para cross-cutting concerns
+- JWT Stateless Authentication
+
+---
+
+## 📊 Modelos de Dados
+
+### Assessor
+Profissional que usa o sistema para gerenciar investidores.
+- `id`, `nome`, `email`, `senha` (BCrypt)
+- `dataCadastro`, `ultimoLogin`, `ativo`
+
+### Investidor
+Cliente do assessor com dados de perfil e investimentos.
+- `id`, `nome`, `cpf` (único), `email`, `telefone`
+- `perfilInvestidor` (CONSERVADOR, MODERADO, ARROJADO)
+- `patrimonioAtual`, `rendaMensal`, `objetivos`
+- `assessorId` (referência ao assessor)
+- `createdAt`, `updatedAt`
+
+### InvestmentPortfolio (Carteira de Investimento)
+Agrupa aplicações financeiras.
+- `id`, `nome`, `descricao`
+- `tipo` (MODELO, PERSONALIZADA)
+- `risco` (BAIXO, MODERADO, ALTO)
+- `metaRentabilidade` (percentual)
+- `investidorId` (opcional)
+- `createdAt`, `updatedAt`
+
+### Aplicacao (Aplicação Financeira)
+Ativo individual dentro de uma carteira.
+- `id`, `portfolioId`, `tipoProduto`, `codigoAtivo`
+- `valorAplicado`, `quantidade`
+- `dataCompra`, `dataVenda` (opcional)
+- `rentabilidadeAtual`, `status` (ATIVA, VENDIDA, EXPIRADA)
+- `notas`, `createdAt`, `updatedAt`
+
+### Relatorio
+Relatórios gerados sobre investidores ou carteiras.
+- `id`, `tipo` (INVESTIDOR, CARTEIRA)
+- `referenciaId` (ID do investidor ou carteira)
+- `dadosResumo` (Map com estatísticas)
+- `totalAplicado`, `rendimento`
+- `criadoPor` (assessorId), `createdAt`
+
+### Insight
+Recomendações geradas por IA simulada.
+- `id`, `investidorId`, `texto`
+- `geradoPor` (ex: "Gemini AI Mock")
+- `tipo` (RECOMENDACAO, ALERTA, OPORTUNIDADE)
+- `dataGeracao`
+
+### Log
+Auditoria automática de todas requisições.
+- `id`, `usuario`, `endpoint`, `metodo` (GET/POST/PUT/DELETE)
+- `ip`, `sucesso` (true/false), `mensagem`
+- `timestamp`
+
+---
+
+## 🔐 Segurança
+
+### Autenticação JWT
+1. **Register/Login** → Retorna token JWT
+2. **Token** válido por 24h
+3. **Header**: `Authorization: Bearer <token>`
+4. **Endpoints públicos**: `/auth/**`, `/swagger-ui/**`, `/api-docs/**`
+5. **Endpoints protegidos**: Todos os outros (requerem token)
+
+### CORS
+- Configurado para aceitar **todas origens** (desenvolvimento)
+- Em produção, restringir para domínios específicos
+
+### Senhas
+- Criptografadas com **BCrypt**
+- Nunca retornadas em responses
+
+---
+
+## 📡 Endpoints da API
+
+### Autenticação (`/auth`)
+- `POST /auth/register` - Cadastrar assessor
+- `POST /auth/login` - Login e obtenção de token
+
+### Investidores (`/investors`)
+- `POST /investors` - Criar investidor
+- `GET /investors` - Listar todos (com filtros opcionais)
+- `GET /investors/{id}` - Buscar por ID
+- `PUT /investors/{id}` - Atualizar investidor
+- `DELETE /investors/{id}` - Excluir investidor
+
+### Carteiras (`/portfolios`)
+- `POST /portfolios` - Criar carteira
+- `GET /portfolios` - Listar todas
+- `GET /portfolios/{id}` - Buscar por ID
+- `PUT /portfolios/{id}` - Atualizar carteira
+- `DELETE /portfolios/{id}` - Excluir carteira
+- `POST /portfolios/simulate` - Simular desempenho
+
+### Aplicações (`/applications`)
+- `POST /applications` - Registrar aplicação
+- `GET /applications?portfolioId={id}` - Listar por carteira
+- `GET /applications/{id}` - Buscar por ID
+- `PUT /applications/{id}` - Atualizar aplicação
+- `DELETE /applications/{id}` - Excluir aplicação
+
+### Insights (`/insights`)
+- `POST /insights/generate` - Gerar insight com IA
+- `GET /insights?investorId={id}` - Listar insights do investidor
+
+### Logs (`/logs`) - Administrativo
+- `GET /logs` - Listar logs (com filtros)
+
+---
+
+## 🔍 Sistema de Logs (AOP)
+
+### Logging Automático
+Todas as requisições REST são interceptadas e logadas automaticamente via **Spring AOP**.
+
+**Aspectos capturados:**
+- Endpoint acessado
+- Método HTTP (GET, POST, PUT, DELETE)
+- Usuário autenticado (email do assessor)
+- IP do cliente
+- Sucesso ou falha da operação
+- Mensagem descritiva
+- Timestamp
+
+**Implementação:**
+```java
+@Aspect
+@Component
+public class LoggingAspect {
+    // Intercepta todos métodos de controllers
+    @Around("execution(* com.bartofinance.controller..*(..))")
+    public Object logRequest(ProceedingJoinPoint joinPoint) {
+        // Registra log antes e depois da requisição
+    }
+}
+```
+
+**Consultas disponíveis:**
+- Logs por usuário
+- Logs por endpoint
+- Logs por período
+- Logs de falhas (sucesso=false)
+
+---
+
+## ⚙️ Configuração
+
+### MongoDB
+```yaml
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/bartofinance
+```
+
+**Opções:**
+- **Local**: `mongodb://localhost:27017/bartofinance`
+- **Docker**: Usar `docker-compose.yml` fornecido
+- **Cloud**: MongoDB Atlas (`mongodb+srv://...`)
+
+### JWT
+```yaml
+jwt:
+  secret: ${JWT_SECRET:defaultSecretKey...}
+  expiration: 86400000  # 24 horas
+```
+
+**Variável de ambiente (produção):**
+```bash
+export JWT_SECRET=SuaChaveSecretaSuperSegura256Bits
+```
+
+### Server
+```yaml
+server:
+  port: 8080
+  address: 0.0.0.0  # Aceita conexões externas
 ```
 
 ---
@@ -76,320 +252,387 @@ bartofinance-backend/
 ## 🚀 Como Executar
 
 ### Pré-requisitos
-
-- **Java 17** ou superior
+- **Java 17+**
 - **Maven 3.8+**
-- **MongoDB** (local ou Atlas)
-- **IDE** (IntelliJ IDEA, Eclipse, VS Code)
+- **MongoDB** (local ou Docker)
 
-### 1️⃣ Clone o Repositório
-
-```bash
-git clone https://github.com/seu-usuario/bartofinance.git
-cd bartofinance
-```
-
-### 2️⃣ Configure o MongoDB
+### Passo 1: Iniciar MongoDB
 
 **Opção A: MongoDB Local**
+```bash
+# Windows (Serviço)
+Start-Service MongoDB
 
-```yaml
-# src/main/resources/application.yml
-spring:
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/bartofinance
+# Linux/Mac
+sudo systemctl start mongod
 ```
 
-**Opção B: MongoDB Atlas (Cloud)**
-
-```yaml
-spring:
-  data:
-    mongodb:
-      uri: mongodb+srv://<username>:<password>@cluster.mongodb.net/bartofinance?retryWrites=true&w=majority
+**Opção B: Docker**
+```bash
+docker-compose up -d
 ```
 
-### 3️⃣ Configure as Variáveis de Ambiente (Opcional)
+**Opção C: MongoDB Atlas**
+- Criar cluster gratuito em https://mongodb.com/atlas
+- Copiar connection string
+- Atualizar `application.yml`
+
+### Passo 2: Executar Aplicação
 
 ```bash
-export JWT_SECRET=sua_chave_secreta_muito_segura_aqui
-```
+# Compilar
+mvn clean compile
 
-Ou mantenha a chave padrão no `application.yml` (apenas para desenvolvimento).
-
-### 4️⃣ Execute a Aplicação
-
-```bash
-mvn clean install
+# Executar
 mvn spring-boot:run
 ```
 
-Ou execute diretamente pela IDE.
+### Passo 3: Acessar
 
-### 5️⃣ Acesse a Aplicação
-
-- **API Base:** http://localhost:8080
-- **Swagger UI:** http://localhost:8080/swagger-ui.html
-- **Health Check:** http://localhost:8080/health
-
----
-
-## 📡 Endpoints da API
-
-### 🔐 Autenticação
-
-#### **POST** `/auth/register`
-Registra um novo assessor no sistema.
-
-**Request Body:**
-```json
-{
-  "nome": "João Silva",
-  "email": "joao.silva@bartofinance.com",
-  "senha": "senha123"
-}
+**Swagger UI (Documentação Interativa):**
+```
+http://localhost:8080/swagger-ui.html
 ```
 
-**Response (201 Created):**
-```json
-{
-  "sucesso": true,
-  "mensagem": "Assessor registrado com sucesso!",
-  "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "tipo": "Bearer",
-    "assessorId": "6748f3a2b1d5e8a3f4c2d1b0",
-    "nome": "João Silva",
-    "email": "joao.silva@bartofinance.com",
-    "mensagem": "Assessor registrado com sucesso!"
-  },
-  "timestamp": "2024-10-20T14:30:00"
-}
+**API Docs (JSON):**
+```
+http://localhost:8080/api-docs
 ```
 
-#### **POST** `/auth/login`
-Realiza login de um assessor existente.
-
-**Request Body:**
-```json
-{
-  "email": "joao.silva@bartofinance.com",
-  "senha": "senha123"
-}
+**Health Check:**
 ```
-
-**Response (200 OK):**
-```json
-{
-  "sucesso": true,
-  "mensagem": "Login realizado com sucesso!",
-  "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "tipo": "Bearer",
-    "assessorId": "6748f3a2b1d5e8a3f4c2d1b0",
-    "nome": "João Silva",
-    "email": "joao.silva@bartofinance.com",
-    "mensagem": "Login realizado com sucesso!"
-  },
-  "timestamp": "2024-10-20T14:32:00"
-}
-```
-
-### ❤️ Health Check
-
-#### **GET** `/health`
-Verifica o status da aplicação.
-
-**Response (200 OK):**
-```json
-{
-  "sucesso": true,
-  "mensagem": "Sistema operacional",
-  "data": {
-    "status": "UP",
-    "application": "BartoFinance Backend",
-    "version": "1.0.0",
-    "timestamp": "2024-10-20T14:35:00"
-  },
-  "timestamp": "2024-10-20T14:35:00"
-}
+http://localhost:8080/health
 ```
 
 ---
 
-## 🔑 Autenticação
+## 🌐 Acesso Externo (Rede Local / Hamachi)
 
-Após o login, você receberá um token JWT. Use-o em todas as requisições protegidas:
+### Configurações Aplicadas
+- **Server bind**: `0.0.0.0` (aceita qualquer IP)
+- **CORS**: Habilitado para todas origens
+
+### Acessar de Outro Dispositivo
+
+1. **Descobrir IP do servidor:**
+```bash
+ipconfig  # Windows
+ifconfig  # Linux/Mac
+```
+
+2. **Acessar do outro dispositivo:**
+```
+http://SEU_IP:8080/swagger-ui.html
+```
+
+Exemplo: `http://192.168.1.100:8080/swagger-ui.html`
+
+### Firewall (Windows)
+Se necessário, liberar porta 8080:
+```powershell
+# PowerShell como Administrador
+New-NetFirewallRule -DisplayName "BartoFinance API" -Direction Inbound -LocalPort 8080 -Protocol TCP -Action Allow
+```
+
+---
+
+## 🧪 Testes
+
+### Executar Testes
+```bash
+mvn test
+```
+
+### Estrutura de Testes
+```
+src/test/java/com/bartofinance/
+├── service/
+│   ├── InvestidorServiceTest.java
+│   └── InsightServiceTest.java
+└── controller/
+    └── InvestidorControllerIntegrationTest.java
+```
+
+**Tipos de testes:**
+- Unit Tests (Service layer)
+- Integration Tests (Controller + Service)
+- Repository Tests
+
+---
+
+## 📦 Build para Produção
 
 ```bash
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+# Gerar JAR
+mvn clean package -DskipTests
+
+# JAR gerado em:
+target/bartofinance-backend-0.0.1-SNAPSHOT.jar
+
+# Executar JAR
+java -jar target/bartofinance-backend-0.0.1-SNAPSHOT.jar
 ```
 
-**Exemplo com cURL:**
+### Variáveis de Ambiente (Produção)
 ```bash
-curl -X GET http://localhost:8080/api/investidores \
-  -H "Authorization: Bearer SEU_TOKEN_AQUI"
+export JWT_SECRET=SuaChaveSecreta256BitsMinimo
+export SPRING_DATA_MONGODB_URI=mongodb://usuario:senha@host:27017/bartofinance
+export SERVER_PORT=8080
 ```
 
 ---
 
-## 📊 Entidades do Sistema
+## 🔧 Principais Recursos Técnicos
 
-### 👤 Assessor
-Usuário do sistema responsável por gerenciar investidores.
-
+### 1. Validação Automática
+Todas as entradas são validadas com Bean Validation:
 ```java
-{
-  "id": "ObjectId",
-  "nome": "String",
-  "email": "String (único)",
-  "senha": "String (criptografada)",
-  "dataCadastro": "DateTime",
-  "ultimoLogin": "DateTime",
-  "ativo": "Boolean"
+@NotBlank(message = "Nome é obrigatório")
+@Email(message = "Email inválido")
+@CPF(message = "CPF inválido")
+```
+
+### 2. Tratamento Global de Erros
+```java
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+    // Captura todas exceções
+    // Retorna responses padronizadas
 }
 ```
 
-### 💼 Investidor
-Cliente do assessor com perfil e patrimônio.
+### 3. DTOs para Request/Response
+Entrada e saída controladas, sem exposição de entidades internas.
 
-```java
-{
-  "id": "ObjectId",
-  "nome": "String",
-  "cpf": "String (único)",
-  "email": "String",
-  "telefone": "String",
-  "perfilInvestidor": "Enum [CONSERVADOR, MODERADO, AGRESSIVO]",
-  "patrimonio": "BigDecimal",
-  "rendaMensal": "BigDecimal",
-  "dataCadastro": "DateTime",
-  "assessorId": "ObjectId"
-}
+### 4. Utilidades
+- **AuthUtil**: Extrai usuário autenticado do contexto Spring Security
+- **LogService**: Centraliza gravação de logs
+
+### 5. Relacionamentos
 ```
-
-### 💰 Aplicação
-Investimento realizado em produtos financeiros.
-
-```java
-{
-  "id": "ObjectId",
-  "investidorId": "ObjectId",
-  "tipoProduto": "Enum [CDB, TESOURO_DIRETO, ACOES, FUNDOS, CRIPTOMOEDAS, OUTROS]",
-  "valorAplicado": "BigDecimal",
-  "rentabilidadeEsperada": "BigDecimal",
-  "dataAplicacao": "DateTime",
-  "dataResgate": "DateTime (opcional)",
-  "status": "Enum [ATIVA, RESGATADA, ENCERRADA]",
-  "notas": "String"
-}
+Assessor → [1:N] → Investidor → [1:N] → Portfolio → [1:N] → Aplicacao
+                                      ↓
+                                  Relatorio, Insight
 ```
-
-### 📋 Relatório
-Consolidação de aplicações e rendimentos.
-
-### 💡 Insight
-Análises e sugestões geradas por IA.
-
-### 📝 Log
-Auditoria de todas as ações do sistema.
 
 ---
 
-## 🧪 Testando com Postman
+## 📈 Próximos Passos (Roadmap)
 
-1. **Importe a collection** (em breve disponível)
-2. **Configure as variáveis:**
-   - `base_url`: http://localhost:8080
-   - `token`: (será preenchido automaticamente após login)
+### Backend
+- [ ] Implementar RelatórioService completo
+- [ ] Adicionar exportação de relatórios (PDF, CSV, Excel)
+- [ ] Integração real com Gemini AI
+- [ ] Websockets para notificações em tempo real
+- [ ] Métricas e dashboards com Spring Actuator
 
-3. **Fluxo de teste:**
-   1. Registre um assessor (`POST /auth/register`)
-   2. Faça login (`POST /auth/login`)
-   3. Copie o token retornado
-   4. Use o token nas próximas requisições
+### Frontend
+- [ ] Desenvolver dashboard em React
+- [ ] Gráficos de rentabilidade (Chart.js / Recharts)
+- [ ] Chatbot fixo com IA Gemini
+- [ ] Filtros avançados e busca
+- [ ] Interface responsiva (mobile-first)
+
+### Infraestrutura
+- [ ] CI/CD com GitHub Actions
+- [ ] Deploy em nuvem (AWS / GCP / Azure)
+- [ ] HTTPS com SSL/TLS
+- [ ] Backup automático do MongoDB
+- [ ] Monitoramento com Prometheus + Grafana
 
 ---
 
-## 📝 Logs e Auditoria
+## 🛠️ Troubleshooting
 
-Todas as ações são registradas no MongoDB na collection `logs`:
+### Erro: "MongoDB connection refused"
+**Causa:** MongoDB não está rodando.
+
+**Solução:**
+```bash
+# Verificar status
+docker ps                     # Se usando Docker
+Get-Service MongoDB           # Windows
+sudo systemctl status mongod  # Linux
+
+# Iniciar
+docker-compose up -d          # Docker
+Start-Service MongoDB         # Windows
+sudo systemctl start mongod   # Linux
+```
+
+### Erro: "Port 8080 already in use"
+**Causa:** Outra aplicação usando a porta.
+
+**Solução:**
+```bash
+# Encontrar processo
+netstat -ano | findstr :8080  # Windows
+lsof -i :8080                 # Linux/Mac
+
+# Matar processo
+taskkill /PID <PID> /F        # Windows
+kill -9 <PID>                 # Linux/Mac
+```
+
+### Erro: "JWT token expired"
+**Causa:** Token com mais de 24h.
+
+**Solução:** Fazer login novamente para obter novo token.
+
+### Erro: "Access Denied" ao iniciar MongoDB
+**Causa:** Falta de permissões.
+
+**Solução:** Executar PowerShell como Administrador.
+
+---
+
+## 📄 Estrutura de Resposta Padrão
+
+Todas as respostas seguem o formato:
 
 ```json
 {
-  "assessorId": "6748f3a2b1d5e8a3f4c2d1b0",
-  "acao": "LOGIN_SUCCESS",
-  "descricao": "Login realizado com sucesso",
-  "endpoint": "/auth/login",
-  "timestamp": "2024-10-20T14:32:00",
-  "ip": "192.168.1.100",
-  "sucesso": true
+  "timestamp": "2024-10-20T21:30:00",
+  "status": 200,
+  "message": "Operação realizada com sucesso",
+  "data": { ... },
+  "path": "/investors"
+}
+```
+
+**Erros:**
+```json
+{
+  "timestamp": "2024-10-20T21:30:00",
+  "status": 400,
+  "message": "Email já cadastrado no sistema",
+  "data": null,
+  "path": "/auth/register"
 }
 ```
 
 ---
 
-## 🔜 Próximos Passos
+## 👥 Fluxo de Uso
 
-- [ ] Implementar CRUD completo de Investidores
-- [ ] Implementar CRUD de Aplicações
-- [ ] Sistema de geração de Relatórios (PDF, CSV, Excel)
-- [ ] Integração com IA Gemini para Insights
-- [ ] Dashboard com métricas agregadas
-- [ ] Gráficos de evolução patrimonial
-- [ ] Notificações por email
-- [ ] Frontend em React
-
----
-
-## 🛡️ Segurança
-
-- ✅ Senhas criptografadas com BCrypt
-- ✅ Autenticação JWT com expiração de 24h
-- ✅ CORS configurado para frontend
-- ✅ Validação de inputs com Bean Validation
-- ✅ Tratamento global de exceções
-- ✅ Logs de auditoria completos
+1. **Assessor se registra** → `POST /auth/register`
+2. **Faz login** → `POST /auth/login` (recebe token JWT)
+3. **Cadastra investidores** → `POST /investors`
+4. **Cria carteiras** → `POST /portfolios`
+5. **Adiciona aplicações** → `POST /applications`
+6. **Gera insights** → `POST /insights/generate`
+7. **Consulta relatórios** → `GET /reports/investor/{id}`
+8. **Audita ações** → `GET /logs`
 
 ---
 
-## 🤝 Contribuindo
+## 📞 Comandos Úteis
 
-Contribuições são bem-vindas! Por favor:
+```bash
+# Compilar
+mvn clean compile
 
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/NovaFeature`)
-3. Commit suas mudanças (`git commit -m 'feat: adiciona nova feature'`)
-4. Push para a branch (`git push origin feature/NovaFeature`)
-5. Abra um Pull Request
+# Executar
+mvn spring-boot:run
+
+# Testes
+mvn test
+
+# Build
+mvn clean package
+
+# Docker MongoDB
+docker-compose up -d
+docker-compose down
+docker-compose logs -f mongo
+
+# Verificar MongoDB
+docker exec -it tcc-bartofinance-mongo-1 mongosh
+> show dbs
+> use bartofinance
+> show collections
+> db.investidores.find()
+
+# Descobrir IP
+ipconfig           # Windows
+ifconfig           # Linux/Mac
+```
 
 ---
 
-## 📄 Licença
+## 📚 Documentação da API
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Após iniciar a aplicação, acesse:
+
+**Swagger UI (Interface Visual):**
+```
+http://localhost:8080/swagger-ui.html
+```
+
+**OpenAPI Spec (JSON):**
+```
+http://localhost:8080/api-docs
+```
 
 ---
 
-## 👨‍💻 Autor
+## 🎓 Observações para TCC
 
-**BartoFinance Team**
+### Pontos Fortes do Projeto:
+1. **Arquitetura Limpa** - Separação de responsabilidades
+2. **Segurança Robusta** - JWT + BCrypt + CORS configurado
+3. **Auditoria Completa** - Logs automáticos via AOP
+4. **Validações** - Bean Validation em todas entradas
+5. **Documentação** - Swagger/OpenAPI integrado
+6. **Testes** - Cobertura de services e controllers
+7. **Escalabilidade** - NoSQL (MongoDB) para crescimento
+8. **Padrões** - DTOs, Repository Pattern, Exception Handling
 
-- Email: contato@bartofinance.com
-- LinkedIn: [linkedin.com/in/bartofinance](https://linkedin.com)
+### Diferenciais:
+- Sistema de logs automático com AOP
+- Insights com IA (preparado para integração real)
+- Suporte a múltiplos assessores simultâneos
+- Relacionamentos complexos (Assessor → Investidor → Carteira → Aplicação)
+- Pronto para frontend React
 
 ---
 
-## 📞 Suporte
+## ✅ Status do Projeto
 
-Para dúvidas e suporte, entre em contato:
-- Email: suporte@bartofinance.com
-- Issues: [GitHub Issues](https://github.com/seu-usuario/bartofinance/issues)
+**Backend:** ✅ **COMPLETO E FUNCIONAL**
+
+### Módulos Implementados:
+- ✅ Autenticação JWT
+- ✅ CRUD Investidores
+- ✅ CRUD Carteiras de Investimento
+- ✅ CRUD Aplicações Financeiras
+- ✅ Geração de Insights (Mock IA)
+- ✅ Sistema de Logs (AOP)
+- ✅ Tratamento Global de Erros
+- ✅ Documentação Swagger
+- ✅ Testes Unitários e Integração
+- ✅ Configuração para Acesso Externo
+
+### Pendências:
+- ⏳ RelatórioService completo (estrutura criada)
+- ⏳ Exportação de relatórios (PDF/CSV/Excel)
+- ⏳ Integração real com Gemini AI
+- ⏳ Frontend React
 
 ---
 
 <p align="center">
-  Feito com ❤️ para assessores de investimentos
+  <strong>🎉 BartoFinance Backend - Pronto para Uso 🎉</strong>
 </p>
 
+<p align="center">
+  Desenvolvido com ❤️ para TCC
+</p>
+
+---
+
+**Versão:** 1.0.0  
+**Última Atualização:** Outubro 2024  
+**Java:** 17+  
+**Spring Boot:** 3.2.0  
+**MongoDB:** 7.0

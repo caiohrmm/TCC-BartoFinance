@@ -15,6 +15,7 @@ spring:
 
 server:
   port: 8080
+  address: 0.0.0.0 # Aceita conexões de qualquer IP
   error:
     include-message: always
     include-binding-errors: always
