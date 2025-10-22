@@ -1,0 +1,38 @@
+@if (show) {
+  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4" (click)="onCancel()">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-slide-up" (click)="$event.stopPropagation()">
+      <!-- Modal Body -->
+      <div class="p-6">
+        <!-- Icon and Message -->
+        <div class="flex items-start">
+          <div [class]="'flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-2xl ' + getTypeClasses()">
+            {{ icon }}
+          </div>
+          <div class="ml-4 flex-1">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ title }}</h3>
+            <p class="text-sm text-gray-600">{{ message }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end gap-3">
+        <button 
+          type="button" 
+          (click)="onCancel()" 
+          class="btn-secondary"
+        >
+          {{ cancelText }}
+        </button>
+        <button 
+          type="button" 
+          (click)="onConfirm()" 
+          [class]="getButtonClasses()"
+        >
+          {{ confirmText }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+

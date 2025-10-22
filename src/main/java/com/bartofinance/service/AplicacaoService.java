@@ -224,6 +224,33 @@ public class AplicacaoService {
         log.info("Aplicação deletada com sucesso: ID {}", id);
     }
 
+    /**
+     * Encerra uma aplicação (registra venda)
+     */
+    public AplicacaoResponse encerrarAplicacao(String id, String dataVenda, Double rentabilidadeFinal, String assessorId) {
+        log.info("Encerrando aplicação: {}", id);
+        Aplicacao aplicacao = aplicacaoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Aplicação", "id", id));
+
+        // Valida se o portfolio pertence ao assessor
+        InvestmentPortfolio portfolio = portfolioRepository.findById(aplicacao.getPortfolioId())
+                .orElseThrow(() -> new ResourceNotFoundException("Portfolio", "id", aplicacao.getPortfolioId()));
+
+        if (!portfolio.getAssessorId().equals(assessorId)) {
+            throw new BadRequestException("Aplicação não pertence a este assessor");
+        }
+
+        // Atualiza a aplicação
+        aplicacao.setDataVenda(LocalDateTime.parse(dataVenda + "T00:00:00"));
+        aplicacao.setRentabilidadeAtual(BigDecimal.valueOf(rentabilidadeFinal));
+        aplicacao.setStatus(StatusAplicacao.ENCERRADA);
+
+        aplicacao = aplicacaoRepository.save(aplicacao);
+        log.info("Aplicação encerrada com sucesso: ID {}", id);
+
+        return mapToResponse(aplicacao);
+    }
+
     private AplicacaoResponse mapToResponse(Aplicacao aplicacao) {
         return AplicacaoResponse.builder()
                 .id(aplicacao.getId())

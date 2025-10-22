@@ -1,0 +1,115 @@
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-gray-100 p-4">
+  <div class="w-full max-w-md">
+    <!-- Logo/Brand -->
+    <div class="text-center animate-fade-in mb-6">
+      <img
+        src="assets/logo.png"
+        alt="BartoFinance"
+        class="w-auto h-32 mx-auto"
+      />
+    </div>
+
+    <!-- Register Card -->
+    <div class="card animate-slide-up">
+      <h2 class="text-2xl font-bold text-center mb-6">Criar Conta</h2>
+
+      <!-- Form -->
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <!-- Nome -->
+        <div class="mb-4">
+          <label class="label" for="nome">Nome Completo</label>
+          <input
+            id="nome"
+            type="text"
+            formControlName="nome"
+            placeholder="Seu nome completo"
+            [class]="nome?.invalid && nome?.touched ? 'input input-error' : 'input'"
+          />
+          @if (nome?.invalid && nome?.touched) {
+            <p class="text-red-600 text-sm mt-1">
+              @if (nome?.errors?.['required']) {
+                Nome é obrigatório
+              }
+              @if (nome?.errors?.['minlength']) {
+                Nome deve ter no mínimo 3 caracteres
+              }
+            </p>
+          }
+        </div>
+
+        <!-- Email -->
+        <div class="mb-4">
+          <label class="label" for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="seu@email.com"
+            [class]="email?.invalid && email?.touched ? 'input input-error' : 'input'"
+          />
+          @if (email?.invalid && email?.touched) {
+            <p class="text-red-600 text-sm mt-1">
+              @if (email?.errors?.['required']) {
+                Email é obrigatório
+              }
+              @if (email?.errors?.['email']) {
+                Email inválido
+              }
+            </p>
+          }
+        </div>
+
+        <!-- Senha -->
+        <div class="mb-6">
+          <label class="label" for="senha">Senha</label>
+          <input
+            id="senha"
+            type="password"
+            formControlName="senha"
+            placeholder="••••••••"
+            [class]="senha?.invalid && senha?.touched ? 'input input-error' : 'input'"
+          />
+          @if (senha?.invalid && senha?.touched) {
+            <p class="text-red-600 text-sm mt-1">
+              @if (senha?.errors?.['required']) {
+                Senha é obrigatória
+              }
+              @if (senha?.errors?.['minlength']) {
+                Senha deve ter no mínimo 6 caracteres
+              }
+            </p>
+          }
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="btn-primary w-full"
+          [disabled]="loading() || registerForm.invalid"
+        >
+          @if (loading()) {
+            <span class="inline-block animate-spin mr-2">⏳</span>
+            Criando conta...
+          } @else {
+            Criar Conta
+          }
+        </button>
+      </form>
+
+      <!-- Login Link -->
+      <div class="mt-6 text-center text-sm text-gray-600">
+        Já tem uma conta?
+        <a routerLink="/login" class="text-primary-600 hover:text-primary-700 font-medium ml-1">
+          Faça login
+        </a>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <p class="text-center text-sm text-gray-500 mt-8">
+      © 2025 Todos os direitos reservados.
+    </p>
+  </div>
+</div>
+
+

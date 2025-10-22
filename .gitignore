@@ -20,6 +20,9 @@ logs/
 *.tar.gz
 *.rar
 
+/bartofinance-frontend/node_modules
+/bartofinance-frontend/.angular
+
 # Virtual machine crash logs
 hs_err_pid*
 replay_pid*

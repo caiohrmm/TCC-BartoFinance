@@ -1,0 +1,90 @@
+<div
+  class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-gray-100 p-4"
+>
+  <div class="w-full max-w-md">
+    <!-- Logo/Brand -->
+    <div class="text-center animate-fade-in mb-6">
+      <img
+        src="assets/logo.png"
+        alt="BartoFinance"
+        class="w-auto mx-auto"
+      />
+    </div>
+
+    <!-- Login Card -->
+    <div class="card animate-slide-up">
+      <h2 class="text-2xl font-bold text-center mb-6">Entrar na Plataforma</h2>
+
+      <!-- Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <!-- Email -->
+        <div class="mb-4">
+          <label class="label" for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="seu@email.com"
+            [class]="
+              email?.invalid && email?.touched ? 'input input-error' : 'input'
+            "
+          />
+          @if (email?.invalid && email?.touched) {
+          <p class="text-red-600 text-sm mt-1">
+            @if (email?.errors?.['required']) { Email é obrigatório } @if
+            (email?.errors?.['email']) { Email inválido }
+          </p>
+          }
+        </div>
+
+        <!-- Senha -->
+        <div class="mb-6">
+          <label class="label" for="senha">Senha</label>
+          <input
+            id="senha"
+            type="password"
+            formControlName="senha"
+            placeholder="••••••••"
+            [class]="
+              senha?.invalid && senha?.touched ? 'input input-error' : 'input'
+            "
+          />
+          @if (senha?.invalid && senha?.touched) {
+          <p class="text-red-600 text-sm mt-1">
+            @if (senha?.errors?.['required']) { Senha é obrigatória } @if
+            (senha?.errors?.['minlength']) { Senha deve ter no mínimo 6
+            caracteres }
+          </p>
+          }
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="btn-primary w-full"
+          [disabled]="loading() || loginForm.invalid"
+        >
+          @if (loading()) {
+          <span class="inline-block animate-spin mr-2">⏳</span>
+          Entrando... } @else { Entrar }
+        </button>
+      </form>
+
+      <!-- Register Link -->
+      <div class="mt-6 text-center text-sm text-gray-600">
+        Não tem uma conta?
+        <a
+          routerLink="/register"
+          class="text-primary-600 hover:text-primary-700 font-medium ml-1"
+        >
+          Cadastre-se
+        </a>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <p class="text-center text-sm text-gray-500 mt-8">
+      © 2025 Todos os direitos reservados.
+    </p>
+  </div>
+</div>

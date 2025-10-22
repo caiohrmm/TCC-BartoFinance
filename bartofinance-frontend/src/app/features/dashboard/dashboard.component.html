@@ -1,0 +1,157 @@
+<div class="min-h-screen bg-gray-50 flex flex-col">
+  <!-- Header/Navbar -->
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-20">
+        <!-- Logo -->
+        <div class="flex items-center">
+          <img 
+            src="assets/logo.png" 
+            alt="BartoFinance" 
+            class="h-12 w-auto hover:opacity-80 transition-opacity cursor-pointer" 
+            routerLink="/dashboard"
+          />
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="hidden md:flex items-center space-x-8">
+          <a routerLink="/dashboard" class="text-gray-900 hover:text-primary-600 font-medium transition">
+            Dashboard
+          </a>
+          <a routerLink="/investidores" class="text-gray-600 hover:text-primary-600 transition">
+            Investidores
+          </a>
+          <a routerLink="/carteiras" class="text-gray-600 hover:text-primary-600 transition">
+            Carteiras
+          </a>
+        </div>
+
+        <!-- User Menu -->
+        <div class="flex items-center space-x-4">
+          <span class="text-sm text-gray-700">Olá, <span class="font-semibold">{{ userName() }}</span></span>
+          <button (click)="abrirModalLogout()" class="btn-ghost text-sm">
+            Sair
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <!-- Welcome Section -->
+    <div class="mb-8 animate-fade-in">
+      <h2 class="text-3xl font-bold text-gray-900 mb-2">Bem-vindo de volta! 👋</h2>
+      <p class="text-gray-600">Aqui está um resumo da sua carteira de clientes</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <!-- Card 1: Investidores -->
+      <div class="card animate-slide-up hover:scale-105 transition-transform cursor-pointer">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 mb-1">Investidores</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats().investidores }}</p>
+          </div>
+          <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+            <span class="text-2xl">👥</span>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500 mt-3">Total de clientes ativos</p>
+      </div>
+
+      <!-- Card 2: Carteiras -->
+      <div class="card animate-slide-up animation-delay-200 hover:scale-105 transition-transform cursor-pointer">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 mb-1">Carteiras</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats().carteiras }}</p>
+          </div>
+          <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+            <span class="text-2xl">💼</span>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500 mt-3">Portfólios gerenciados</p>
+      </div>
+
+      <!-- Card 3: Aplicações -->
+      <div class="card animate-slide-up animation-delay-400 hover:scale-105 transition-transform cursor-pointer">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 mb-1">Aplicações</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats().aplicacoes }}</p>
+          </div>
+          <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+            <span class="text-2xl">📊</span>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500 mt-3">Investimentos ativos</p>
+      </div>
+
+      <!-- Card 4: Valor Total -->
+      <div class="card animate-slide-up animation-delay-400 hover:scale-105 transition-transform cursor-pointer">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 mb-1">Valor Total</p>
+            <p class="text-2xl font-bold text-gray-900">R$ {{ stats().valorTotal | number:'1.2-2' }}</p>
+          </div>
+          <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+            <span class="text-2xl">💰</span>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500 mt-3">Patrimônio sob gestão</p>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card animate-fade-in">
+      <h3 class="text-xl font-bold text-gray-900 mb-6">Ações Rápidas</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <button 
+          routerLink="/investidores"
+          class="p-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all text-center group"
+        >
+          <div class="text-4xl mb-3">➕</div>
+          <p class="font-medium text-gray-900 group-hover:text-primary-600">Novo Investidor</p>
+          <p class="text-sm text-gray-500 mt-1">Cadastrar cliente</p>
+        </button>
+
+        <button 
+          routerLink="/carteiras"
+          class="p-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all text-center group"
+        >
+          <div class="text-4xl mb-3">📈</div>
+          <p class="font-medium text-gray-900 group-hover:text-primary-600">Nova Carteira</p>
+          <p class="text-sm text-gray-500 mt-1">Criar portfolio</p>
+        </button>
+
+        <button 
+          class="p-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all text-center group"
+        >
+          <div class="text-4xl mb-3">🤖</div>
+          <p class="font-medium text-gray-900 group-hover:text-primary-600">Gerar Insight</p>
+          <p class="text-sm text-gray-500 mt-1">Análise com IA</p>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <app-footer></app-footer>
+
+  <!-- Modal de Confirmação de Logout -->
+  <app-confirm-modal
+    [show]="showLogoutModal()"
+    [title]="'Sair do Sistema'"
+    [message]="'Você deseja realmente sair do sistema? Você precisará fazer login novamente para acessar.'"
+    [confirmText]="'Sair'"
+    [cancelText]="'Cancelar'"
+    [type]="'warning'"
+    [icon]="'👋'"
+    (confirm)="confirmarLogout()"
+    (cancel)="cancelarLogout()"
+  ></app-confirm-modal>
+</div>
+
+

@@ -1,0 +1,282 @@
+<div class="min-h-screen bg-gray-50 flex flex-col">
+  <!-- Header/Navbar -->
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-20">
+        <div class="flex items-center">
+          <img
+            src="assets/logo.png"
+            alt="BartoFinance"
+            class="h-16 w-auto hover:opacity-80 transition-opacity cursor-pointer"
+            routerLink="/dashboard"
+          />
+        </div>
+        <div class="hidden md:flex items-center space-x-8">
+          <a routerLink="/dashboard" class="text-gray-600 hover:text-primary-600 transition">Dashboard</a>
+          <a routerLink="/investidores" class="text-gray-900 hover:text-primary-600 font-medium transition">Investidores</a>
+          <a routerLink="/carteiras" class="text-gray-600 hover:text-primary-600 transition">Carteiras</a>
+        </div>
+        <div class="flex items-center space-x-4">
+          <span class="text-sm text-gray-700">Olá, <span class="font-semibold">{{ userName() }}</span></span>
+          <button (click)="abrirModalLogout()" class="btn-ghost text-sm">Sair</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    @if (loading() && !investidor()) {
+      <div class="flex justify-center items-center py-12">
+        <span class="animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"></span>
+        <p class="ml-4 text-primary-600">Carregando perfil...</p>
+      </div>
+    } @else if (investidor(); as inv) {
+      <!-- Breadcrumb -->
+      <div class="mb-6 flex items-center text-sm text-gray-600 animate-fade-in">
+        <a routerLink="/investidores" class="hover:text-primary-600">Investidores</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">{{ inv.nome }}</span>
+      </div>
+
+      <!-- Header do Perfil -->
+      <div class="card mb-6 animate-slide-up">
+        <div class="flex justify-between items-start">
+          <div class="flex items-start gap-6 flex-1">
+            <!-- Avatar -->
+            <div class="flex-shrink-0 h-24 w-24 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+              {{ inv.nome.charAt(0).toUpperCase() }}
+            </div>
+
+            <!-- Informações Principais -->
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-3">
+                <h2 class="text-3xl font-bold text-gray-900">{{ inv.nome }}</h2>
+                @if (getPerfilInfo(); as perfil) {
+                  <span [class]="'badge bg-' + perfil.color + '-100 text-' + perfil.color + '-800 text-lg'">
+                    {{ perfil.icon }} {{ perfil.label }}
+                  </span>
+                }
+              </div>
+
+              <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-gray-700">
+                <div>
+                  <span class="font-semibold">CPF:</span> {{ formatarCpf(inv.cpf) }}
+                </div>
+                <div>
+                  <span class="font-semibold">Email:</span> {{ inv.email }}
+                </div>
+                <div>
+                  <span class="font-semibold">Telefone:</span> {{ formatarTelefone(inv.telefone) }}
+                </div>
+                <div>
+                  <span class="font-semibold">Cliente desde:</span> {{ formatarData(inv.createdAt) }}
+                </div>
+              </div>
+
+              @if (inv.objetivos) {
+                <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p class="text-sm text-blue-800">
+                    <span class="font-semibold">Objetivos:</span> {{ inv.objetivos }}
+                  </p>
+                </div>
+              }
+            </div>
+          </div>
+
+          <button routerLink="/investidores" class="btn-ghost">
+            ← Voltar
+          </button>
+        </div>
+      </div>
+
+      <!-- Cards de Estatísticas -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <!-- Patrimônio Atual -->
+        <div class="card animate-slide-up animation-delay-200">
+          <p class="text-sm font-medium text-gray-600 mb-1">Patrimônio Declarado</p>
+          <p class="text-2xl font-bold text-gray-900">{{ formatarValor(inv.patrimonioAtual) }}</p>
+        </div>
+
+        <!-- Renda Mensal -->
+        <div class="card animate-slide-up animation-delay-300">
+          <p class="text-sm font-medium text-gray-600 mb-1">Renda Mensal</p>
+          <p class="text-2xl font-bold text-green-600">{{ formatarValor(inv.rendaMensal) }}</p>
+        </div>
+
+        <!-- Total em Carteiras -->
+        <div class="card animate-slide-up animation-delay-400">
+          <p class="text-sm font-medium text-gray-600 mb-1">Valor em Carteiras</p>
+          <p class="text-2xl font-bold text-primary-600">{{ formatarValor(totalEmCarteiras) }}</p>
+        </div>
+
+        <!-- Rentabilidade Média -->
+        <div class="card animate-slide-up animation-delay-500">
+          <p class="text-sm font-medium text-gray-600 mb-1">Rentabilidade Média</p>
+          <p 
+            [class]="rentabilidadeMedia >= 0 ? 'text-2xl font-bold text-green-600' : 'text-2xl font-bold text-red-600'"
+          >
+            {{ formatarPercentual(rentabilidadeMedia) }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Seção de Carteiras -->
+      <div class="mb-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-2xl font-bold text-gray-900">
+            Carteiras ({{ carteirasAtivas }})
+          </h3>
+          <a routerLink="/carteiras" class="btn-secondary text-sm">
+            + Criar Nova Carteira
+          </a>
+        </div>
+
+        @if (carteiras().length === 0) {
+          <div class="card">
+            <div class="text-center py-8 text-gray-500">
+              <p class="text-4xl mb-4">💼</p>
+              <p class="text-lg font-medium">Nenhuma carteira vinculada.</p>
+              <p class="text-sm mt-2">Crie uma carteira personalizada para este investidor.</p>
+              <a routerLink="/carteiras" class="btn-primary mt-6">
+                Criar Carteira
+              </a>
+            </div>
+          </div>
+        } @else {
+          <div class="space-y-4">
+            @for (carteira of carteiras(); track carteira.id) {
+              <div class="card border-l-4 border-primary-500 hover:shadow-lg transition-shadow">
+                <!-- Header da Carteira (sempre visível) -->
+                <div 
+                  class="flex justify-between items-center cursor-pointer"
+                  (click)="toggleCarteira(carteira.id)"
+                >
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                      <h4 class="text-xl font-bold text-gray-900">{{ carteira.nome }}</h4>
+                      @if (getTipoInfo(carteira.tipo); as tipo) {
+                        <span class="badge bg-purple-100 text-purple-800">
+                          {{ tipo.icon }} {{ tipo.label }}
+                        </span>
+                      }
+                      @if (getRiscoInfo(carteira.risco); as risco) {
+                        <span [class]="'badge bg-' + risco.color + '-100 text-' + risco.color + '-800'">
+                          {{ risco.icon }} {{ risco.label }}
+                        </span>
+                      }
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <span class="text-gray-600">Valor Total:</span>
+                        <span class="ml-2 font-semibold text-gray-900">{{ formatarValor(carteira.valorTotal) }}</span>
+                      </div>
+                      <div>
+                        <span class="text-gray-600">Rentabilidade:</span>
+                        <span 
+                          [class]="carteira.rentabilidadeAtual >= 0 ? 'ml-2 font-semibold text-green-600' : 'ml-2 font-semibold text-red-600'"
+                        >
+                          {{ formatarPercentual(carteira.rentabilidadeAtual) }}
+                        </span>
+                      </div>
+                      <div>
+                        <span class="text-gray-600">Meta:</span>
+                        <span class="ml-2 font-semibold text-primary-600">{{ formatarPercentual(carteira.metaRentabilidade) }}</span>
+                      </div>
+                      <div>
+                        <span class="text-gray-600">Criada em:</span>
+                        <span class="ml-2 font-semibold text-gray-700">{{ formatarData(carteira.createdAt) }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-3">
+                    <a 
+                      [routerLink]="['/carteiras', carteira.id]"
+                      (click)="$event.stopPropagation()"
+                      class="btn-primary text-sm"
+                    >
+                      Ver Detalhes
+                    </a>
+                    <button class="text-gray-400 hover:text-gray-600 text-2xl">
+                      {{ carteiraExpandida() === carteira.id ? '▼' : '▶' }}
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Aplicações (expandível) -->
+                @if (carteiraExpandida() === carteira.id) {
+                  <div class="mt-4 pt-4 border-t border-gray-200 animate-slide-up">
+                    <h5 class="text-lg font-semibold text-gray-900 mb-3">Aplicações desta Carteira</h5>
+                    
+                    @if (getAplicacoesDaCarteira(carteira.id); as aplicacoes) {
+                      @if (aplicacoes.length === 0) {
+                        <p class="text-sm text-gray-500 text-center py-4">
+                          Nenhuma aplicação registrada nesta carteira.
+                        </p>
+                      } @else {
+                        <div class="overflow-x-auto">
+                          <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                              <tr>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Ativo</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Valor</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Rentabilidade</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                              @for (aplicacao of aplicacoes; track aplicacao.id) {
+                                <tr class="hover:bg-gray-50">
+                                  <td class="px-4 py-3 text-sm font-medium text-gray-900">
+                                    {{ aplicacao.codigoAtivo }}
+                                  </td>
+                                  <td class="px-4 py-3 text-sm text-gray-600">
+                                    {{ aplicacao.tipoProduto }}
+                                  </td>
+                                  <td class="px-4 py-3 text-sm text-gray-900">
+                                    {{ formatarValor(aplicacao.valorAplicado) }}
+                                  </td>
+                                  <td class="px-4 py-3 text-sm">
+                                    <span [class]="aplicacao.rentabilidadeAtual >= 0 ? 'text-green-600 font-medium' : 'text-red-600 font-medium'">
+                                      {{ formatarPercentual(aplicacao.rentabilidadeAtual) }}
+                                    </span>
+                                  </td>
+                                  <td class="px-4 py-3 text-sm">
+                                    <span [class]="aplicacao.status === 'ATIVA' ? 'badge bg-green-100 text-green-800' : 'badge bg-gray-100 text-gray-800'">
+                                      {{ aplicacao.status }}
+                                    </span>
+                                  </td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        </div>
+                      }
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+    }
+  </main>
+
+  <!-- Footer -->
+  <app-footer></app-footer>
+
+  <!-- Modal de Confirmação de Logout -->
+  <app-confirm-modal
+    [show]="showLogoutModal()"
+    [title]="'Sair do Sistema'"
+    [message]="'Você deseja realmente sair do sistema? Você precisará fazer login novamente para acessar.'"
+    [confirmText]="'Sair'"
+    [cancelText]="'Cancelar'"
+    [type]="'warning'"
+    [icon]="'👋'"
+    (confirm)="confirmarLogout()"
+    (cancel)="cancelarLogout()"
+  ></app-confirm-modal>
+</div>

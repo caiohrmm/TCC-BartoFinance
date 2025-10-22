@@ -1,0 +1,29 @@
+<!-- Toast Container (Fixed position) -->
+<div class="fixed top-4 right-4 z-50 flex flex-col gap-3 max-w-md">
+  @for (toast of toasts(); track toast.id) {
+    <div 
+      [class]="'toast-item border-2 rounded-lg shadow-lg p-4 flex items-start gap-3 animate-slide-down ' + getColorClasses(toast.type)"
+      role="alert"
+    >
+      <!-- Icon -->
+      <div [class]="'flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ' + getIconColorClasses(toast.type)">
+        {{ getIcon(toast.type) }}
+      </div>
+
+      <!-- Message -->
+      <div class="flex-1 text-sm font-medium pt-0.5">
+        {{ toast.message }}
+      </div>
+
+      <!-- Close Button -->
+      <button 
+        (click)="close(toast.id)"
+        class="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+        aria-label="Fechar notificação"
+      >
+        <span class="text-lg leading-none">×</span>
+      </button>
+    </div>
+  }
+</div>
+

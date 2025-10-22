@@ -131,5 +131,26 @@ public class AplicacaoController {
         
         return ResponseEntity.ok(ApiResponse.success("Aplicação deletada com sucesso"));
     }
+
+    /**
+     * Encerrar aplicação (registrar venda)
+     */
+    @PatchMapping("/{id}/encerrar")
+    @Operation(summary = "Encerrar aplicação", description = "Registra a venda/encerramento de uma aplicação")
+    public ResponseEntity<ApiResponse<AplicacaoResponse>> encerrarAplicacao(
+            @PathVariable String id,
+            @RequestBody java.util.Map<String, Object> payload,
+            Authentication authentication) {
+        
+        log.info("PATCH /applications/{}/encerrar - Encerrando aplicação", id);
+        String assessorId = authUtil.getAssessorId(authentication);
+        
+        String dataVenda = (String) payload.get("dataVenda");
+        Double rentabilidadeFinal = ((Number) payload.get("rentabilidadeAtual")).doubleValue();
+        
+        AplicacaoResponse response = aplicacaoService.encerrarAplicacao(id, dataVenda, rentabilidadeFinal, assessorId);
+        
+        return ResponseEntity.ok(ApiResponse.success("Aplicação encerrada com sucesso", response));
+    }
 }
 

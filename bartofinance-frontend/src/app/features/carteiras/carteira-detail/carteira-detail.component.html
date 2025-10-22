@@ -1,0 +1,466 @@
+<div class="min-h-screen bg-gray-50 flex flex-col">
+  <!-- Header/Navbar -->
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-20">
+        <div class="flex items-center">
+          <img
+            src="assets/logo.png"
+            alt="BartoFinance"
+            class="h-16 w-auto hover:opacity-80 transition-opacity cursor-pointer"
+            routerLink="/dashboard"
+          />
+        </div>
+        <div class="hidden md:flex items-center space-x-8">
+          <a routerLink="/dashboard" class="text-gray-600 hover:text-primary-600 transition">Dashboard</a>
+          <a routerLink="/investidores" class="text-gray-600 hover:text-primary-600 transition">Investidores</a>
+          <a routerLink="/carteiras" class="text-gray-900 hover:text-primary-600 font-medium transition">Carteiras</a>
+        </div>
+        <div class="flex items-center space-x-4">
+          <span class="text-sm text-gray-700">Olá, <span class="font-semibold">{{ userName() }}</span></span>
+          <button (click)="abrirModalLogout()" class="btn-ghost text-sm">Sair</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    @if (loading() && !carteira()) {
+      <div class="flex justify-center items-center py-12">
+        <span class="animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"></span>
+        <p class="ml-4 text-primary-600">Carregando detalhes...</p>
+      </div>
+    } @else if (carteira()) {
+      @if (carteira(); as cart) {
+      <!-- Breadcrumb -->
+      <div class="mb-6 flex items-center text-sm text-gray-600 animate-fade-in">
+        <a routerLink="/carteiras" class="hover:text-primary-600">Carteiras</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-900 font-medium">{{ cart.nome }}</span>
+      </div>
+
+      <!-- Cabeçalho da Carteira -->
+      <div class="card mb-6 animate-slide-up">
+        <div class="flex justify-between items-start">
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-3">
+              <h2 class="text-3xl font-bold text-gray-900">{{ cart.nome }}</h2>
+              @if (tipoOptions; as tipos) {
+                @for (tipo of tipos; track tipo.value) {
+                  @if (cart.tipo === tipo.value) {
+                    <span class="badge bg-purple-100 text-purple-800">
+                      {{ tipo.icon }} {{ tipo.label }}
+                    </span>
+                  }
+                }
+              }
+              @if (riscoOptions; as riscos) {
+                @for (risco of riscos; track risco.value) {
+                  @if (cart.risco === risco.value) {
+                    <span [class]="'badge bg-' + risco.color + '-100 text-' + risco.color + '-800'">
+                      {{ risco.icon }} {{ risco.label }}
+                    </span>
+                  }
+                }
+              }
+            </div>
+
+            @if (cart.descricao) {
+              <p class="text-gray-600 mb-4">{{ cart.descricao }}</p>
+            }
+
+            <!-- Informações do Investidor -->
+            @if (investidor(); as inv) {
+              <div class="flex items-center gap-2 text-sm text-gray-700 mb-2">
+                <span class="font-semibold">Investidor:</span>
+                <a 
+                  [routerLink]="['/investidores', inv.id]"
+                  class="text-primary-600 hover:text-primary-800 font-medium"
+                >
+                  {{ inv.nome }}
+                </a>
+              </div>
+            }
+
+            <div class="grid grid-cols-2 gap-4 mt-4 text-sm text-gray-600">
+              <div>
+                <span class="font-semibold">Criada em:</span> {{ formatarData(cart.createdAt) }}
+              </div>
+              <div>
+                <span class="font-semibold">Última atualização:</span> {{ formatarData(cart.updatedAt) }}
+              </div>
+            </div>
+          </div>
+
+          <button routerLink="/carteiras" class="btn-ghost">
+            ← Voltar
+          </button>
+        </div>
+      </div>
+
+      <!-- Cards de Estatísticas -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <!-- Total Aplicado -->
+        <div class="card animate-slide-up animation-delay-200">
+          <p class="text-sm font-medium text-gray-600 mb-1">Total Aplicado</p>
+          <p class="text-2xl font-bold text-gray-900">{{ formatarValor(totalAplicado) }}</p>
+        </div>
+
+        <!-- Valor Atual -->
+        <div class="card animate-slide-up animation-delay-300">
+          <p class="text-sm font-medium text-gray-600 mb-1">Valor Atual</p>
+          <p class="text-2xl font-bold text-primary-600">{{ formatarValor(totalAtual) }}</p>
+        </div>
+
+        <!-- Rentabilidade -->
+        <div class="card animate-slide-up animation-delay-400">
+          <p class="text-sm font-medium text-gray-600 mb-1">Rentabilidade</p>
+          <p 
+            [class]="rentabilidadeGeral >= 0 ? 'text-2xl font-bold text-green-600' : 'text-2xl font-bold text-red-600'"
+          >
+            {{ formatarPercentual(rentabilidadeGeral) }}
+          </p>
+          <p class="text-xs text-gray-500 mt-1">Meta: {{ formatarPercentual(cart.metaRentabilidade) }}</p>
+        </div>
+
+        <!-- Aplicações -->
+        <div class="card animate-slide-up animation-delay-500">
+          <p class="text-sm font-medium text-gray-600 mb-1">Aplicações</p>
+          <div class="flex items-baseline gap-2">
+            <p class="text-2xl font-bold text-gray-900">{{ aplicacoes().length }}</p>
+            <p class="text-xs text-gray-500">
+              ({{ aplicacoesAtivas }} ativas, {{ aplicacoesEncerradas }} encerradas)
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção de Aplicações -->
+      <div class="mb-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-2xl font-bold text-gray-900">Aplicações</h3>
+          <button (click)="abrirModalAplicacao()" class="btn-primary flex items-center">
+            <span class="mr-2">➕</span> Nova Aplicação
+          </button>
+        </div>
+
+        <!-- Tabela de Aplicações -->
+        <div class="card">
+          @if (aplicacoes().length === 0) {
+            <div class="text-center py-8 text-gray-500">
+              <p class="text-4xl mb-4">📊</p>
+              <p class="text-lg font-medium">Nenhuma aplicação registrada.</p>
+              <p class="text-sm mt-2">Comece adicionando uma aplicação nesta carteira.</p>
+              <button (click)="abrirModalAplicacao()" class="btn-primary mt-6">
+                Adicionar Primeira Aplicação
+              </button>
+            </div>
+          } @else {
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ativo</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Valor Aplicado</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantidade</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rentabilidade</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ações</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  @for (aplicacao of aplicacoes(); track aplicacao.id) {
+                    <tr class="hover:bg-gray-50 transition-colors">
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div class="text-sm font-medium text-gray-900">{{ aplicacao.codigoAtivo }}</div>
+                          <div class="text-xs text-gray-500">{{ formatarData(aplicacao.dataCompra) }}</div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        @if (getTipoProdutoInfo(aplicacao.tipoProduto); as tipoInfo) {
+                          <span class="badge bg-gray-100 text-gray-800">
+                            {{ tipoInfo.icon }} {{ tipoInfo.label }}
+                          </span>
+                        }
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ formatarValor(aplicacao.valorAplicado) }}</div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ aplicacao.quantidade }}</div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div 
+                          [class]="aplicacao.rentabilidadeAtual >= 0 ? 'text-sm font-medium text-green-600' : 'text-sm font-medium text-red-600'"
+                        >
+                          {{ formatarPercentual(aplicacao.rentabilidadeAtual) }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                          {{ formatarValor(calcularLucro(aplicacao)) }}
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        @if (getStatusInfo(aplicacao.status); as statusInfo) {
+                          <span [class]="'badge bg-' + statusInfo.color + '-100 text-' + statusInfo.color + '-800'">
+                            {{ statusInfo.icon }} {{ statusInfo.label }}
+                          </span>
+                        }
+                        @if (aplicacao.dataVenda) {
+                          <div class="text-xs text-gray-500 mt-1">{{ formatarData(aplicacao.dataVenda) }}</div>
+                        }
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        @if (aplicacao.status === 'ATIVA') {
+                          <button
+                            (click)="abrirModalAplicacao(aplicacao)"
+                            class="text-primary-600 hover:text-primary-900 mr-3"
+                            title="Editar"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            (click)="abrirModalEncerrar(aplicacao)"
+                            class="text-yellow-600 hover:text-yellow-900 mr-3"
+                            title="Encerrar"
+                          >
+                            🔒
+                          </button>
+                        }
+                        <button
+                          (click)="abrirModalExclusao(aplicacao)"
+                          class="text-red-600 hover:text-red-900"
+                          title="Excluir"
+                        >
+                          🗑️
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+      }
+    }
+  </main>
+
+  <!-- Modal de Criação/Edição de Aplicação -->
+  @if (showAplicacaoModal()) {
+    <div class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50 animate-fade-in">
+      <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-slide-up">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-gray-900">
+            {{ isEditingAplicacao() ? 'Editar Aplicação' : 'Nova Aplicação' }}
+          </h3>
+          <button (click)="fecharModalAplicacao()" class="text-gray-400 hover:text-gray-600">✕</button>
+        </div>
+
+        <form [formGroup]="aplicacaoForm" (ngSubmit)="salvarAplicacao()">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <!-- Tipo de Produto -->
+            <div>
+              <label class="label" for="tipoProduto">Tipo de Produto *</label>
+              <select id="tipoProduto" formControlName="tipoProduto" class="input">
+                <option value="" disabled>Selecione o tipo</option>
+                @for (tipo of tipoProdutoOptions; track tipo.value) {
+                  <option [value]="tipo.value">{{ tipo.icon }} {{ tipo.label }}</option>
+                }
+              </select>
+              @if (aplicacaoForm.get('tipoProduto')?.invalid && aplicacaoForm.get('tipoProduto')?.touched) {
+                <p class="text-red-600 text-sm mt-1">Tipo é obrigatório</p>
+              }
+            </div>
+
+            <!-- Código do Ativo -->
+            <div>
+              <label class="label" for="codigoAtivo">Código do Ativo *</label>
+              <input
+                id="codigoAtivo"
+                type="text"
+                formControlName="codigoAtivo"
+                class="input"
+                placeholder="Ex: PETR4, VALE3"
+              />
+              @if (aplicacaoForm.get('codigoAtivo')?.invalid && aplicacaoForm.get('codigoAtivo')?.touched) {
+                <p class="text-red-600 text-sm mt-1">Código é obrigatório (2-20 caracteres)</p>
+              }
+            </div>
+
+            <!-- Valor Aplicado -->
+            <div>
+              <label class="label" for="valorAplicado">Valor Aplicado *</label>
+              <input
+                id="valorAplicado"
+                type="text"
+                formControlName="valorAplicado"
+                class="input"
+                placeholder="R$ 0,00"
+                appCurrencyMask
+              />
+              @if (aplicacaoForm.get('valorAplicado')?.invalid && aplicacaoForm.get('valorAplicado')?.touched) {
+                <p class="text-red-600 text-sm mt-1">Valor deve ser maior que zero</p>
+              }
+            </div>
+
+            <!-- Quantidade -->
+            <div>
+              <label class="label" for="quantidade">Quantidade *</label>
+              <input
+                id="quantidade"
+                type="number"
+                formControlName="quantidade"
+                class="input"
+                placeholder="0"
+                step="0.01"
+                min="0.01"
+              />
+              @if (aplicacaoForm.get('quantidade')?.invalid && aplicacaoForm.get('quantidade')?.touched) {
+                <p class="text-red-600 text-sm mt-1">Quantidade deve ser maior que zero</p>
+              }
+            </div>
+
+            <!-- Data da Compra -->
+            <div>
+              <label class="label" for="dataCompra">Data da Compra *</label>
+              <input
+                id="dataCompra"
+                type="date"
+                formControlName="dataCompra"
+                class="input"
+              />
+              @if (aplicacaoForm.get('dataCompra')?.invalid && aplicacaoForm.get('dataCompra')?.touched) {
+                <p class="text-red-600 text-sm mt-1">Data é obrigatória</p>
+              }
+            </div>
+
+            <!-- Rentabilidade Atual -->
+            <div>
+              <label class="label" for="rentabilidadeAtual">Rentabilidade Atual (%)</label>
+              <input
+                id="rentabilidadeAtual"
+                type="number"
+                formControlName="rentabilidadeAtual"
+                class="input"
+                placeholder="0.00"
+                step="0.01"
+              />
+              <p class="text-xs text-gray-500 mt-1">Pode ser negativo (prejuízo)</p>
+            </div>
+
+            <!-- Notas -->
+            <div class="md:col-span-2">
+              <label class="label" for="notas">Notas (Opcional)</label>
+              <textarea
+                id="notas"
+                formControlName="notas"
+                class="input"
+                rows="2"
+                placeholder="Observações sobre esta aplicação..."
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="flex justify-end space-x-4 mt-6">
+            <button type="button" (click)="fecharModalAplicacao()" class="btn-secondary">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-primary" [disabled]="loading() || aplicacaoForm.invalid">
+              {{ isEditingAplicacao() ? 'Salvar Alterações' : 'Criar Aplicação' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Modal de Encerrar Aplicação -->
+  @if (showEncerrarModal()) {
+    <div class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50 animate-fade-in">
+      <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md animate-slide-up">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-gray-900">🔒 Encerrar Aplicação</h3>
+          <button (click)="cancelarEncerrar()" class="text-gray-400 hover:text-gray-600">✕</button>
+        </div>
+
+        @if (aplicacaoToEncerrar(); as app) {
+          <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p class="text-sm text-yellow-800 mb-2">
+              <span class="font-semibold">Ativo:</span> {{ app.codigoAtivo }}
+            </p>
+            <p class="text-sm text-yellow-800">
+              <span class="font-semibold">Valor Aplicado:</span> {{ formatarValor(app.valorAplicado) }}
+            </p>
+          </div>
+
+          <form [formGroup]="encerrarForm" (ngSubmit)="confirmarEncerrar()">
+            <div class="mb-4">
+              <label class="label" for="dataVenda">Data da Venda *</label>
+              <input
+                id="dataVenda"
+                type="date"
+                formControlName="dataVenda"
+                class="input"
+              />
+            </div>
+
+            <div class="mb-6">
+              <label class="label" for="rentabilidadeFinal">Rentabilidade Final (%) *</label>
+              <input
+                id="rentabilidadeFinal"
+                type="number"
+                formControlName="rentabilidadeFinal"
+                class="input"
+                placeholder="0.00"
+                step="0.01"
+              />
+              <p class="text-xs text-gray-500 mt-1">Rentabilidade final calculada na venda</p>
+            </div>
+
+            <div class="flex justify-end space-x-4">
+              <button type="button" (click)="cancelarEncerrar()" class="btn-secondary">
+                Cancelar
+              </button>
+              <button type="submit" class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition">
+                Encerrar Aplicação
+              </button>
+            </div>
+          </form>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Footer -->
+  <app-footer></app-footer>
+
+  <!-- Modal de Confirmação de Exclusão -->
+  <app-confirm-modal
+    [show]="showDeleteModal()"
+    [title]="'Excluir Aplicação'"
+    [message]="'Tem certeza que deseja excluir a aplicação ' + (aplicacaoToDelete()?.codigoAtivo || '') + '? Esta ação não pode ser desfeita.'"
+    [confirmText]="'Excluir'"
+    [cancelText]="'Cancelar'"
+    [type]="'danger'"
+    [icon]="'🗑️'"
+    (confirm)="confirmarExclusao()"
+    (cancel)="cancelarExclusao()"
+  ></app-confirm-modal>
+
+  <!-- Modal de Confirmação de Logout -->
+  <app-confirm-modal
+    [show]="showLogoutModal()"
+    [title]="'Sair do Sistema'"
+    [message]="'Você deseja realmente sair do sistema? Você precisará fazer login novamente para acessar.'"
+    [confirmText]="'Sair'"
+    [cancelText]="'Cancelar'"
+    [type]="'warning'"
+    [icon]="'👋'"
+    (confirm)="confirmarLogout()"
+    (cancel)="cancelarLogout()"
+  ></app-confirm-modal>
+</div>
+

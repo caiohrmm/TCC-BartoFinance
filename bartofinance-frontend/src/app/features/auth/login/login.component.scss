@@ -1,0 +1,10 @@
+// Animations específicas do componente
+:host {
+  display: block;
+}
+
+.card {
+  backdrop-filter: blur(10px);
+}
+
+
