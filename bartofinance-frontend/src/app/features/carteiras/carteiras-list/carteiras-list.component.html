@@ -298,14 +298,34 @@
 
             <!-- Investidor -->
             <div>
-              <label class="label" for="investidorId">Investidor (Opcional)</label>
-              <select id="investidorId" formControlName="investidorId" class="input">
-                <option value="">Nenhum (carteira modelo)</option>
-                @for (investidor of investidores(); track investidor.id) {
-                  <option [value]="investidor.id">{{ investidor.nome }} ({{ investidor.cpf }})</option>
+              <label class="label" for="investidorId">
+                Investidor 
+                @if (carteiraForm.get('tipo')?.value === 'PERSONALIZADA') {
+                  <span class="text-red-600">*</span>
                 }
-              </select>
-              <p class="text-xs text-gray-500 mt-1">Vincule a um investidor específico (obrigatório para carteiras personalizadas)</p>
+              </label>
+              @if (carteiraForm.get('tipo')?.value === 'MODELO') {
+                <input 
+                  type="text" 
+                  class="input bg-gray-100 cursor-not-allowed" 
+                  value="Nenhum (carteira modelo)" 
+                  disabled 
+                  readonly
+                />
+                <p class="text-xs text-gray-500 mt-1">
+                  💡 Carteiras MODELO não são vinculadas a investidores
+                </p>
+              } @else {
+                <select id="investidorId" formControlName="investidorId" class="input">
+                  <option value="" disabled selected>Selecione um investidor</option>
+                  @for (investidor of investidores(); track investidor.id) {
+                    <option [value]="investidor.id">{{ investidor.nome }} ({{ investidor.cpf }})</option>
+                  }
+                </select>
+                @if (carteiraForm.get('investidorId')?.invalid && carteiraForm.get('investidorId')?.touched) {
+                  <p class="text-red-600 text-sm mt-1">Selecione um investidor para carteira PERSONALIZADA</p>
+                }
+              }
             </div>
           </div>
 

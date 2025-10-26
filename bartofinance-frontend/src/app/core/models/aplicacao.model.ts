@@ -1,5 +1,5 @@
-export type TipoProduto = 'ACOES' | 'FUNDOS' | 'RENDA_FIXA' | 'CRIPTOMOEDAS' | 'OUTROS';
-export type StatusAplicacao = 'ATIVA' | 'ENCERRADA' | 'SIMULADA';
+export type TipoProduto = 'CDB' | 'TESOURO_DIRETO' | 'ACOES' | 'FUNDOS' | 'CRIPTOMOEDAS' | 'OUTROS';
+export type StatusAplicacao = 'ATIVA' | 'RESGATADA' | 'ENCERRADA';
 
 export interface AplicacaoRequest {
   portfolioId: string;
@@ -29,16 +29,17 @@ export interface AplicacaoResponse {
 }
 
 export const TipoProdutoOptions = [
-  { value: 'ACOES' as const, label: 'Ações', icon: '📈', description: 'Ações na bolsa' },
-  { value: 'FUNDOS' as const, label: 'Fundos', icon: '💼', description: 'Fundos de investimento' },
-  { value: 'RENDA_FIXA' as const, label: 'Renda Fixa', icon: '🏦', description: 'CDB, LCI, LCA, Tesouro' },
-  { value: 'CRIPTOMOEDAS' as const, label: 'Criptomoedas', icon: '₿', description: 'Bitcoin, Ethereum, etc' },
-  { value: 'OUTROS' as const, label: 'Outros', icon: '📊', description: 'Outros ativos' }
+  { value: 'CDB' as const, label: 'CDB', icon: '🏦', description: 'Certificado de Depósito Bancário' },
+  { value: 'TESOURO_DIRETO' as const, label: 'Tesouro Direto', icon: '🏛️', description: 'Tesouro Direto' },
+  { value: 'ACOES' as const, label: 'Ações', icon: '📈', description: 'Ações' },
+  { value: 'FUNDOS' as const, label: 'Fundos', icon: '💼', description: 'Fundos de Investimento' },
+  { value: 'CRIPTOMOEDAS' as const, label: 'Criptomoedas', icon: '₿', description: 'Criptomoedas' },
+  { value: 'OUTROS' as const, label: 'Outros', icon: '📊', description: 'Outros' }
 ] as const;
 
 export const StatusAplicacaoOptions = [
-  { value: 'ATIVA' as const, label: 'Ativa', color: 'green', icon: '✓' },
-  { value: 'ENCERRADA' as const, label: 'Encerrada', color: 'gray', icon: '■' },
-  { value: 'SIMULADA' as const, label: 'Simulada', color: 'blue', icon: '🎯' }
+  { value: 'ATIVA' as const, label: 'Ativa', color: 'green', icon: '✓', description: 'Aplicação Ativa' },
+  { value: 'RESGATADA' as const, label: 'Resgatada', color: 'blue', icon: '💰', description: 'Aplicação Resgatada' },
+  { value: 'ENCERRADA' as const, label: 'Encerrada', color: 'gray', icon: '■', description: 'Aplicação Encerrada' }
 ] as const;
 

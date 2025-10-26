@@ -7,6 +7,7 @@ import com.bartofinance.exception.ResourceNotFoundException;
 import com.bartofinance.model.Investidor;
 import com.bartofinance.model.InvestmentPortfolio;
 import com.bartofinance.model.enums.TipoCarteira;
+import com.bartofinance.repository.AplicacaoRepository;
 import com.bartofinance.repository.InvestidorRepository;
 import com.bartofinance.repository.InvestmentPortfolioRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +28,12 @@ public class PortfolioService {
 
     @Autowired
     private InvestmentPortfolioRepository portfolioRepository;
-    
+
     @Autowired
     private InvestidorRepository investidorRepository;
+    
+    @Autowired
+    private AplicacaoRepository aplicacaoRepository;
 
     /**
      * Cria uma nova carteira
@@ -183,6 +187,70 @@ public class PortfolioService {
 
         log.info("Simulação realizada: rentabilidade estimada de {}%", portfolioSimulado.getRentabilidadeAtual());
         return mapToResponse(portfolioSimulado);
+    }
+
+    /**
+     * Atualiza estatísticas do portfolio baseado nas aplicações
+     */
+    public void atualizarEstatisticasPortfolio(String portfolioId) {
+        log.info("Atualizando estatísticas do portfolio: {}", portfolioId);
+        
+        InvestmentPortfolio portfolio = portfolioRepository.findById(portfolioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Portfolio", "id", portfolioId));
+        
+        // Buscar todas as aplicações deste portfolio
+        List<com.bartofinance.model.Aplicacao> aplicacoes = 
+            aplicacaoRepository.findAll().stream()
+                .filter(app -> app.getPortfolioId().equals(portfolioId))
+                .collect(java.util.stream.Collectors.toList());
+        
+        if (aplicacoes.isEmpty()) {
+            portfolio.setValorTotal(BigDecimal.ZERO);
+            portfolio.setRentabilidadeAtual(BigDecimal.ZERO);
+        } else {
+            // Valor total = soma dos valores aplicados (não considera rentabilidade de aplicações ativas)
+            BigDecimal valorTotalAplicado = aplicacoes.stream()
+                .map(com.bartofinance.model.Aplicacao::getValorAplicado)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            // Rentabilidade = média ponderada APENAS de aplicações ENCERRADAS/RESGATADAS
+            List<com.bartofinance.model.Aplicacao> aplicacoesFinalizadas = aplicacoes.stream()
+                .filter(app -> app.getStatus() == com.bartofinance.model.enums.StatusAplicacao.ENCERRADA || 
+                              app.getStatus() == com.bartofinance.model.enums.StatusAplicacao.RESGATADA)
+                .collect(java.util.stream.Collectors.toList());
+            
+            BigDecimal rentabilidadeMedia = BigDecimal.ZERO;
+            if (!aplicacoesFinalizadas.isEmpty()) {
+                BigDecimal somaRentabilidadePonderada = BigDecimal.ZERO;
+                BigDecimal somaValores = BigDecimal.ZERO;
+                
+                for (com.bartofinance.model.Aplicacao app : aplicacoesFinalizadas) {
+                    BigDecimal rentabilidade = app.getRentabilidadeAtual() != null ? 
+                        app.getRentabilidadeAtual() : BigDecimal.ZERO;
+                    BigDecimal valor = app.getValorAplicado();
+                    
+                    somaRentabilidadePonderada = somaRentabilidadePonderada.add(
+                        rentabilidade.multiply(valor)
+                    );
+                    somaValores = somaValores.add(valor);
+                }
+                
+                if (somaValores.compareTo(BigDecimal.ZERO) > 0) {
+                    rentabilidadeMedia = somaRentabilidadePonderada.divide(
+                        somaValores, 2, java.math.RoundingMode.HALF_UP
+                    );
+                }
+            }
+            
+            portfolio.setValorTotal(valorTotalAplicado);
+            portfolio.setRentabilidadeAtual(rentabilidadeMedia);
+        }
+        
+        portfolio.setUpdatedAt(LocalDateTime.now());
+        portfolioRepository.save(portfolio);
+        
+        log.info("Estatísticas atualizadas - Valor Total: {}, Rentabilidade: {}%", 
+            portfolio.getValorTotal(), portfolio.getRentabilidadeAtual());
     }
 
     private PortfolioResponse mapToResponse(InvestmentPortfolio portfolio) {

@@ -30,7 +30,8 @@
         <span class="animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"></span>
         <p class="ml-4 text-primary-600">Carregando perfil...</p>
       </div>
-    } @else if (investidor(); as inv) {
+    } @else {
+      @if (investidor(); as inv) {
       <!-- Breadcrumb -->
       <div class="mb-6 flex items-center text-sm text-gray-600 animate-fade-in">
         <a routerLink="/investidores" class="hover:text-primary-600">Investidores</a>
@@ -261,6 +262,8 @@
             }
           </div>
         }
+      </div>
+      }
     }
   </main>
 

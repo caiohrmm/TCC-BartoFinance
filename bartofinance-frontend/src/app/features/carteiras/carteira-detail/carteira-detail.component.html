@@ -69,7 +69,7 @@
               <p class="text-gray-600 mb-4">{{ cart.descricao }}</p>
             }
 
-            <!-- Informações do Investidor -->
+            <!-- Informações do Investidor ou Aviso de MODELO -->
             @if (investidor(); as inv) {
               <div class="flex items-center gap-2 text-sm text-gray-700 mb-2">
                 <span class="font-semibold">Investidor:</span>
@@ -79,6 +79,20 @@
                 >
                   {{ inv.nome }}
                 </a>
+              </div>
+            } @else if (cart.tipo === 'MODELO') {
+              <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <div class="flex items-start gap-3">
+                  <span class="text-2xl">📋</span>
+                  <div>
+                    <h4 class="font-semibold text-blue-900 mb-1">Carteira Modelo</h4>
+                    <p class="text-sm text-blue-800">
+                      Esta é uma carteira modelo (template) sem investidor vinculado. 
+                      As aplicações cadastradas aqui servem como referência. 
+                      Ao vincular um investidor, você poderá definir os valores reais dos investimentos.
+                    </p>
+                  </div>
+                </div>
               </div>
             }
 
@@ -258,6 +272,17 @@
           </h3>
           <button (click)="fecharModalAplicacao()" class="text-gray-400 hover:text-gray-600">✕</button>
         </div>
+
+        @if (carteira()?.tipo === 'MODELO' && !carteira()?.investidorId) {
+          <div class="bg-blue-50 border-l-4 border-blue-500 p-3 mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-blue-600">ℹ️</span>
+              <p class="text-sm text-blue-800">
+                <strong>Carteira Modelo:</strong> Os valores e quantidades são apenas referências para o template.
+              </p>
+            </div>
+          </div>
+        }
 
         <form [formGroup]="aplicacaoForm" (ngSubmit)="salvarAplicacao()">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

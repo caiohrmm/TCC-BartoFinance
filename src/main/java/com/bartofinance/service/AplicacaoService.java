@@ -31,6 +31,9 @@ public class AplicacaoService {
 
     @Autowired
     private InvestmentPortfolioRepository portfolioRepository;
+    
+    @Autowired
+    private PortfolioService portfolioService;
 
     /**
      * Cria uma nova aplicação
@@ -67,6 +70,9 @@ public class AplicacaoService {
 
         aplicacao = aplicacaoRepository.save(aplicacao);
         log.info("Aplicação criada com sucesso: ID {}", aplicacao.getId());
+        
+        // Atualizar estatísticas do portfolio
+        portfolioService.atualizarEstatisticasPortfolio(aplicacao.getPortfolioId());
 
         return mapToResponse(aplicacao);
     }
@@ -180,7 +186,7 @@ public class AplicacaoService {
         // Valida se o código do ativo (se alterado) não conflita com outra aplicação do mesmo portfolio
         if (!aplicacao.getCodigoAtivo().equals(request.getCodigoAtivo())) {
             java.util.Optional<Aplicacao> aplicacaoExistente = aplicacaoRepository.findByPortfolioIdAndCodigoAtivo(
-                aplicacao.getPortfolioId(), request.getCodigoAtivo()
+                portfolioId, request.getCodigoAtivo()
             );
             if (aplicacaoExistente.isPresent() && !aplicacaoExistente.get().getId().equals(id)) {
                 throw new BadRequestException("Já existe uma aplicação com o código " + request.getCodigoAtivo() + " neste portfolio");
@@ -200,6 +206,9 @@ public class AplicacaoService {
 
         aplicacao = aplicacaoRepository.save(aplicacao);
         log.info("Aplicação atualizada com sucesso: ID {}", aplicacao.getId());
+        
+        // Atualizar estatísticas do portfolio
+        portfolioService.atualizarEstatisticasPortfolio(portfolioId);
 
         return mapToResponse(aplicacao);
     }
@@ -220,8 +229,13 @@ public class AplicacaoService {
             throw new BadRequestException("Aplicação não pertence a este assessor");
         }
 
+        String portfolioIdParaAtualizar = aplicacao.getPortfolioId();
+        
         aplicacaoRepository.delete(aplicacao);
         log.info("Aplicação deletada com sucesso: ID {}", id);
+        
+        // Atualizar estatísticas do portfolio
+        portfolioService.atualizarEstatisticasPortfolio(portfolioIdParaAtualizar);
     }
 
     /**
@@ -233,20 +247,24 @@ public class AplicacaoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Aplicação", "id", id));
 
         // Valida se o portfolio pertence ao assessor
-        InvestmentPortfolio portfolio = portfolioRepository.findById(aplicacao.getPortfolioId())
-                .orElseThrow(() -> new ResourceNotFoundException("Portfolio", "id", aplicacao.getPortfolioId()));
+        final String portfolioId = aplicacao.getPortfolioId();
+        InvestmentPortfolio portfolio = portfolioRepository.findById(portfolioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Portfolio", "id", portfolioId));
 
         if (!portfolio.getAssessorId().equals(assessorId)) {
             throw new BadRequestException("Aplicação não pertence a este assessor");
         }
 
         // Atualiza a aplicação
-        aplicacao.setDataVenda(LocalDateTime.parse(dataVenda + "T00:00:00"));
+        aplicacao.setDataVenda(LocalDateTime.parse(dataVenda));
         aplicacao.setRentabilidadeAtual(BigDecimal.valueOf(rentabilidadeFinal));
         aplicacao.setStatus(StatusAplicacao.ENCERRADA);
 
         aplicacao = aplicacaoRepository.save(aplicacao);
         log.info("Aplicação encerrada com sucesso: ID {}", id);
+        
+        // Atualizar estatísticas do portfolio
+        portfolioService.atualizarEstatisticasPortfolio(portfolioId);
 
         return mapToResponse(aplicacao);
     }

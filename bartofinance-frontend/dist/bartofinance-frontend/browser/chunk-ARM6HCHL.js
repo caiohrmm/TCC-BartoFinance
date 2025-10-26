@@ -1,0 +1,1 @@
+var o=[{value:"CONSERVADOR",label:"Conservador",color:"blue",icon:"\u{1F6E1}\uFE0F",description:"Baixo risco, foco em seguran\xE7a"},{value:"MODERADO",label:"Moderado",color:"yellow",icon:"\u2696\uFE0F",description:"Risco m\xE9dio, equil\xEDbrio"},{value:"AGRESSIVO",label:"Agressivo",color:"red",icon:"\u{1F680}",description:"Alto risco, maiores retornos"}];export{o as a};

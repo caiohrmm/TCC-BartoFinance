@@ -77,21 +77,29 @@ export class InvestidoresListComponent implements OnInit {
     // Sempre carrega todos os investidores (sem filtro)
     this.investidorService.listarInvestidores().subscribe({
       next: (response) => {
-        this.todosInvestidores.set(response.data);
-        
-        // Aplica o filtro localmente
-        const perfil = this.filtroPerfil();
-        if (perfil) {
-          this.investidores.set(response.data.filter(inv => inv.perfilInvestidor === perfil));
+        if (response.sucesso && response.data) {
+          this.todosInvestidores.set(response.data);
+          
+          // Aplica o filtro localmente
+          const perfil = this.filtroPerfil();
+          if (perfil) {
+            this.investidores.set(response.data.filter(inv => inv.perfilInvestidor === perfil));
+          } else {
+            this.investidores.set(response.data);
+          }
         } else {
-          this.investidores.set(response.data);
+          this.todosInvestidores.set([]);
+          this.investidores.set([]);
         }
         
         this.loading.set(false);
       },
       error: (error) => {
         this.loading.set(false);
-        this.toastService.error(error.error?.mensagem || 'Erro ao carregar investidores');
+        this.todosInvestidores.set([]);
+        this.investidores.set([]);
+        console.error('Erro ao carregar investidores:', error);
+        this.toastService.error(error.error?.mensagem || 'Erro ao carregar investidores. Tente atualizar a página.');
       }
     });
   }

@@ -71,6 +71,19 @@ export class CarteirasListComponent implements OnInit {
     }
     this.carregarCarteiras();
     this.carregarInvestidores();
+    
+    // Validação dinâmica: PERSONALIZADA exige investidor, MODELO não
+    this.carteiraForm.get('tipo')?.valueChanges.subscribe(tipo => {
+      const investidorControl = this.carteiraForm.get('investidorId');
+      if (tipo === 'PERSONALIZADA') {
+        investidorControl?.setValidators([Validators.required]);
+      } else {
+        // MODELO: limpa investidor e remove validação
+        investidorControl?.setValue('');
+        investidorControl?.clearValidators();
+      }
+      investidorControl?.updateValueAndValidity();
+    });
   }
 
   carregarCarteiras(): void {
@@ -78,13 +91,21 @@ export class CarteirasListComponent implements OnInit {
     
     this.portfolioService.listarPortfolios().subscribe({
       next: (response) => {
-        this.todasCarteiras.set(response.data);
-        this.aplicarFiltros();
+        if (response.sucesso && response.data) {
+          this.todasCarteiras.set(response.data);
+          this.aplicarFiltros();
+        } else {
+          this.todasCarteiras.set([]);
+          this.carteiras.set([]);
+        }
         this.loading.set(false);
       },
       error: (error) => {
         this.loading.set(false);
-        this.toastService.error(error.error?.mensagem || 'Erro ao carregar carteiras');
+        this.todasCarteiras.set([]);
+        this.carteiras.set([]);
+        console.error('Erro ao carregar carteiras:', error);
+        this.toastService.error(error.error?.mensagem || 'Erro ao carregar carteiras. Tente atualizar a página.');
       }
     });
   }
@@ -92,10 +113,14 @@ export class CarteirasListComponent implements OnInit {
   carregarInvestidores(): void {
     this.investidorService.listarInvestidores().subscribe({
       next: (response) => {
-        this.investidores.set(response.data);
+        if (response.sucesso && response.data) {
+          this.investidores.set(response.data);
+        }
       },
-      error: () => {
-        // Silencioso - não é crítico
+      error: (error) => {
+        console.error('Erro ao carregar investidores:', error);
+        this.investidores.set([]);
+        // Não mostra toast - não é crítico para a listagem de carteiras
       }
     });
   }
@@ -162,7 +187,13 @@ export class CarteirasListComponent implements OnInit {
     }
 
     this.loading.set(true);
-    const request: PortfolioRequest = this.carteiraForm.value;
+    const formValue = this.carteiraForm.value;
+    
+    // Remove investidorId se estiver vazio (carteira MODELO)
+    const request: PortfolioRequest = {
+      ...formValue,
+      investidorId: formValue.investidorId || undefined
+    };
 
     const operacao = this.isEditing()
       ? this.portfolioService.atualizarPortfolio(this.currentCarteiraId()!, request)

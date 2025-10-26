@@ -46,3 +46,9 @@ springdoc:
     path: /swagger-ui.html
     operations-sorter: method
 
+# Gemini AI Configuration
+gemini:
+  api:
+    key: AIzaSyBjPHzr_96V2qkwb-TIm049c_kEjVqRpzQ
+    model: gemini-2.0-flash-exp
+

@@ -1,6 +1,7 @@
 package com.bartofinance.service;
 
 import com.bartofinance.dto.response.InsightResponse;
+import com.bartofinance.exception.BadRequestException;
 import com.bartofinance.exception.ResourceNotFoundException;
 import com.bartofinance.model.Insight;
 import com.bartofinance.model.Investidor;

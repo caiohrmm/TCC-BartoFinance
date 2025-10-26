@@ -46,9 +46,15 @@
     </div>
 
     <!-- Stats Grid -->
+    @if (loading()) {
+      <div class="flex justify-center items-center py-12">
+        <span class="animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"></span>
+        <p class="ml-4 text-primary-600">Carregando dashboard...</p>
+      </div>
+    } @else {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <!-- Card 1: Investidores -->
-      <div class="card animate-slide-up hover:scale-105 transition-transform cursor-pointer">
+      <div class="card animate-slide-up hover:scale-105 transition-transform cursor-pointer" routerLink="/investidores">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600 mb-1">Investidores</p>
@@ -62,7 +68,7 @@
       </div>
 
       <!-- Card 2: Carteiras -->
-      <div class="card animate-slide-up animation-delay-200 hover:scale-105 transition-transform cursor-pointer">
+      <div class="card animate-slide-up animation-delay-200 hover:scale-105 transition-transform cursor-pointer" routerLink="/carteiras">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600 mb-1">Carteiras</p>
@@ -76,7 +82,7 @@
       </div>
 
       <!-- Card 3: Aplicações -->
-      <div class="card animate-slide-up animation-delay-400 hover:scale-105 transition-transform cursor-pointer">
+      <div class="card animate-slide-up animation-delay-400 hover:scale-105 transition-transform cursor-pointer" routerLink="/carteiras">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600 mb-1">Aplicações</p>
@@ -90,7 +96,7 @@
       </div>
 
       <!-- Card 4: Valor Total -->
-      <div class="card animate-slide-up animation-delay-400 hover:scale-105 transition-transform cursor-pointer">
+      <div class="card animate-slide-up animation-delay-400 hover:scale-105 transition-transform cursor-pointer" routerLink="/carteiras">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600 mb-1">Valor Total</p>
@@ -135,6 +141,7 @@
         </button>
       </div>
     </div>
+    }
   </main>
 
   <!-- Footer -->

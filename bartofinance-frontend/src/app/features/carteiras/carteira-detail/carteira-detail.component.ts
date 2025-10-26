@@ -169,9 +169,17 @@ export class CarteiraDetailComponent implements OnInit {
 
     this.loading.set(true);
     const formValue = this.aplicacaoForm.value;
+    
+    // Converter data para formato ISO DateTime (backend espera LocalDateTime)
+    const dataCompra = formValue.dataCompra;
+    const dataCompraISO = dataCompra.includes('T') 
+      ? dataCompra 
+      : `${dataCompra}T00:00:00`;
+    
     const request: AplicacaoRequest = {
       portfolioId: this.carteiraId,
-      ...formValue
+      ...formValue,
+      dataCompra: dataCompraISO
     };
 
     const operacao = this.isEditingAplicacao()
@@ -217,8 +225,13 @@ export class CarteiraDetailComponent implements OnInit {
     this.showEncerrarModal.set(false);
 
     const { dataVenda, rentabilidadeFinal } = this.encerrarForm.value;
+    
+    // Converter data para formato ISO DateTime (backend espera LocalDateTime)
+    const dataVendaISO = dataVenda.includes('T') 
+      ? dataVenda 
+      : `${dataVenda}T00:00:00`;
 
-    this.aplicacaoService.encerrarAplicacao(aplicacao.id, dataVenda, rentabilidadeFinal).subscribe({
+    this.aplicacaoService.encerrarAplicacao(aplicacao.id, dataVendaISO, rentabilidadeFinal).subscribe({
       next: () => {
         this.loading.set(false);
         this.toastService.success('Aplicação encerrada com sucesso!');

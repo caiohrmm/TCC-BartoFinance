@@ -1,5 +1,5 @@
-export type TipoCarteira = 'SUGERIDA' | 'PERSONALIZADA';
-export type RiscoCarteira = 'BAIXO' | 'MEDIO' | 'ALTO';
+export type TipoCarteira = 'MODELO' | 'PERSONALIZADA';
+export type RiscoCarteira = 'BAIXO' | 'MODERADO' | 'ALTO';
 
 export interface PortfolioRequest {
   nome: string;
@@ -26,13 +26,13 @@ export interface PortfolioResponse {
 }
 
 export const TipoCarteiraOptions = [
-  { value: 'SUGERIDA' as const, label: 'Sugerida', icon: '💡', description: 'Carteira modelo sugerida' },
+  { value: 'MODELO' as const, label: 'Modelo', icon: '📋', description: 'Carteira modelo para replicação' },
   { value: 'PERSONALIZADA' as const, label: 'Personalizada', icon: '⭐', description: 'Carteira personalizada para investidor' }
 ] as const;
 
 export const RiscoCarteiraOptions = [
-  { value: 'BAIXO' as const, label: 'Baixo', color: 'blue', icon: '🛡️', description: 'Risco baixo' },
-  { value: 'MEDIO' as const, label: 'Médio', color: 'yellow', icon: '⚖️', description: 'Risco médio' },
-  { value: 'ALTO' as const, label: 'Alto', color: 'red', icon: '🚀', description: 'Risco alto' }
+  { value: 'BAIXO' as const, label: 'Baixo', color: 'blue', icon: '🛡️', description: 'Investimentos conservadores' },
+  { value: 'MODERADO' as const, label: 'Moderado', color: 'yellow', icon: '⚖️', description: 'Equilíbrio entre segurança e rentabilidade' },
+  { value: 'ALTO' as const, label: 'Alto', color: 'red', icon: '🚀', description: 'Busca maior rentabilidade com maior exposição' }
 ] as const;
 

@@ -106,10 +106,12 @@ export class InvestidorDetailComponent implements OnInit {
       return;
     }
 
-    this.aplicacaoService.listarAplicacoes(carteiraId).subscribe({
+    this.aplicacaoService.listarAplicacoes().subscribe({
       next: (response) => {
+        // Filtrar aplicações desta carteira
+        const aplicacoesCarteira = response.data.filter(app => app.portfolioId === carteiraId);
         const map = new Map(this.aplicacoesPorCarteira());
-        map.set(carteiraId, response.data);
+        map.set(carteiraId, aplicacoesCarteira);
         this.aplicacoesPorCarteira.set(map);
       },
       error: () => {
