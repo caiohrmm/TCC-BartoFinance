@@ -121,6 +121,75 @@
         </div>
       </div>
 
+      <!-- Bloco de Insights de IA -->
+      <div class="card mb-8 bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200 animate-slide-up">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+            <span class="text-2xl">🤖</span>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-gray-900">Análise de IA do Perfil</h3>
+            <p class="text-sm text-gray-600">Insights personalizados para auxiliar sua assessoria</p>
+          </div>
+          <button 
+            (click)="gerarInsightIA()"
+            [disabled]="loadingInsight()"
+            class="ml-auto btn-primary text-sm"
+          >
+            @if (loadingInsight()) {
+              <span class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent inline-block mr-2"></span>
+              Gerando...
+            } @else {
+              ✨ Gerar Insight
+            }
+          </button>
+        </div>
+
+        @if (aiInsight()) {
+          <div class="bg-white p-6 rounded-lg border border-purple-200 shadow-sm prose prose-sm max-w-none">
+            <div [innerHTML]="formatarInsight(aiInsight())"></div>
+          </div>
+        } @else {
+          <div class="bg-white p-6 rounded-lg border border-purple-200 text-center text-gray-500">
+            <span class="text-4xl mb-3 block">💡</span>
+            <p>Clique em "Gerar Insight" para receber uma análise personalizada do perfil deste investidor.</p>
+          </div>
+        }
+      </div>
+
+      <!-- Gráficos de Desempenho -->
+      @if (carteiras().length > 0) {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <!-- Gráfico de Distribuição -->
+          <div class="card animate-slide-up">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">📊 Distribuição de Carteiras</h3>
+            <apx-chart
+              [series]="chartOptions.series"
+              [chart]="chartOptions.chart"
+              [labels]="chartOptions.labels"
+              [colors]="chartOptions.colors"
+              [legend]="chartOptions.legend"
+              [dataLabels]="chartOptions.dataLabels"
+            ></apx-chart>
+          </div>
+
+          <!-- Gráfico de Rentabilidade -->
+          <div class="card animate-slide-up animation-delay-200">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">📈 Desempenho das Carteiras</h3>
+            <apx-chart
+              [series]="performanceChartOptions.series"
+              [chart]="performanceChartOptions.chart"
+              [plotOptions]="performanceChartOptions.plotOptions"
+              [dataLabels]="performanceChartOptions.dataLabels"
+              [xaxis]="performanceChartOptions.xaxis"
+              [yaxis]="performanceChartOptions.yaxis"
+              [colors]="performanceChartOptions.colors"
+              [fill]="performanceChartOptions.fill"
+            ></apx-chart>
+          </div>
+        </div>
+      }
+
       <!-- Seção de Carteiras -->
       <div class="mb-6">
         <div class="flex justify-between items-center mb-4">
@@ -137,8 +206,8 @@
             <div class="text-center py-8 text-gray-500">
               <p class="text-4xl mb-4">💼</p>
               <p class="text-lg font-medium">Nenhuma carteira vinculada.</p>
-              <p class="text-sm mt-2">Crie uma carteira personalizada para este investidor.</p>
-              <a routerLink="/carteiras" class="btn-primary mt-6">
+              <p class="text-sm mb-4">Crie uma carteira personalizada para este investidor.</p>
+              <a routerLink="/carteiras" class="btn-primary">
                 Criar Carteira
               </a>
             </div>

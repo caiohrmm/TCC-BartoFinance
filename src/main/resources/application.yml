@@ -49,6 +49,6 @@ springdoc:
 # Gemini AI Configuration
 gemini:
   api:
-    key: AIzaSyBjPHzr_96V2qkwb-TIm049c_kEjVqRpzQ
-    model: gemini-2.0-flash-exp
+    key: AIzaSyCAJX9yD-xeE9zyTJRxS4naOg9TdlGm_o8
+    model: gemini-2.5-flash
 

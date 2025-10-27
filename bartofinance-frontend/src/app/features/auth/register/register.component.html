@@ -1,12 +1,10 @@
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-gray-100 p-4">
+<div
+  class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-gray-100 p-4"
+>
   <div class="w-full max-w-md">
     <!-- Logo/Brand -->
     <div class="text-center animate-fade-in mb-6">
-      <img
-        src="assets/logo.png"
-        alt="BartoFinance"
-        class="w-auto h-32 mx-auto"
-      />
+      <img src="assets/logo.png" alt="BartoFinance" class="w-auto mx-auto" />
     </div>
 
     <!-- Register Card -->
@@ -23,17 +21,16 @@
             type="text"
             formControlName="nome"
             placeholder="Seu nome completo"
-            [class]="nome?.invalid && nome?.touched ? 'input input-error' : 'input'"
+            [class]="
+              nome?.invalid && nome?.touched ? 'input input-error' : 'input'
+            "
           />
           @if (nome?.invalid && nome?.touched) {
-            <p class="text-red-600 text-sm mt-1">
-              @if (nome?.errors?.['required']) {
-                Nome é obrigatório
-              }
-              @if (nome?.errors?.['minlength']) {
-                Nome deve ter no mínimo 3 caracteres
-              }
-            </p>
+          <p class="text-red-600 text-sm mt-1">
+            @if (nome?.errors?.['required']) { Nome é obrigatório } @if
+            (nome?.errors?.['minlength']) { Nome deve ter no mínimo 3 caracteres
+            }
+          </p>
           }
         </div>
 
@@ -45,17 +42,15 @@
             type="email"
             formControlName="email"
             placeholder="seu@email.com"
-            [class]="email?.invalid && email?.touched ? 'input input-error' : 'input'"
+            [class]="
+              email?.invalid && email?.touched ? 'input input-error' : 'input'
+            "
           />
           @if (email?.invalid && email?.touched) {
-            <p class="text-red-600 text-sm mt-1">
-              @if (email?.errors?.['required']) {
-                Email é obrigatório
-              }
-              @if (email?.errors?.['email']) {
-                Email inválido
-              }
-            </p>
+          <p class="text-red-600 text-sm mt-1">
+            @if (email?.errors?.['required']) { Email é obrigatório } @if
+            (email?.errors?.['email']) { Email inválido }
+          </p>
           }
         </div>
 
@@ -67,17 +62,16 @@
             type="password"
             formControlName="senha"
             placeholder="••••••••"
-            [class]="senha?.invalid && senha?.touched ? 'input input-error' : 'input'"
+            [class]="
+              senha?.invalid && senha?.touched ? 'input input-error' : 'input'
+            "
           />
           @if (senha?.invalid && senha?.touched) {
-            <p class="text-red-600 text-sm mt-1">
-              @if (senha?.errors?.['required']) {
-                Senha é obrigatória
-              }
-              @if (senha?.errors?.['minlength']) {
-                Senha deve ter no mínimo 6 caracteres
-              }
-            </p>
+          <p class="text-red-600 text-sm mt-1">
+            @if (senha?.errors?.['required']) { Senha é obrigatória } @if
+            (senha?.errors?.['minlength']) { Senha deve ter no mínimo 6
+            caracteres }
+          </p>
           }
         </div>
 
@@ -88,18 +82,18 @@
           [disabled]="loading() || registerForm.invalid"
         >
           @if (loading()) {
-            <span class="inline-block animate-spin mr-2">⏳</span>
-            Criando conta...
-          } @else {
-            Criar Conta
-          }
+          <span class="inline-block animate-spin mr-2">⏳</span>
+          Criando conta... } @else { Criar Conta }
         </button>
       </form>
 
       <!-- Login Link -->
       <div class="mt-6 text-center text-sm text-gray-600">
         Já tem uma conta?
-        <a routerLink="/login" class="text-primary-600 hover:text-primary-700 font-medium ml-1">
+        <a
+          routerLink="/login"
+          class="text-primary-600 hover:text-primary-700 font-medium ml-1"
+        >
           Faça login
         </a>
       </div>
@@ -111,5 +105,3 @@
     </p>
   </div>
 </div>
-
-

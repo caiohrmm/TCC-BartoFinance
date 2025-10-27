@@ -10,6 +10,7 @@ import com.bartofinance.model.enums.TipoCarteira;
 import com.bartofinance.repository.AplicacaoRepository;
 import com.bartofinance.repository.InvestidorRepository;
 import com.bartofinance.repository.InvestmentPortfolioRepository;
+import com.bartofinance.util.PerfilRiscoValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,6 +59,11 @@ public class PortfolioService {
             
             if (!investidor.getAssessorId().equals(assessorId)) {
                 throw new BadRequestException("Investidor não pertence a este assessor");
+            }
+
+            // Validação de compatibilidade perfil-risco
+            if (!PerfilRiscoValidator.isCompatible(investidor.getPerfilInvestidor(), request.getRisco())) {
+                throw new BadRequestException(PerfilRiscoValidator.getErrorMessage(investidor.getPerfilInvestidor(), request.getRisco()));
             }
         }
 

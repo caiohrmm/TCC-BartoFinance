@@ -1,6 +1,7 @@
 package com.bartofinance.dto.request;
 
 import com.bartofinance.model.enums.PerfilInvestidor;
+import com.bartofinance.validation.ValidCpf;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,6 +23,7 @@ public class InvestidorRequest {
 
     @NotBlank(message = "CPF é obrigatório")
     @Pattern(regexp = "\\d{11}", message = "CPF deve conter 11 dígitos")
+    @ValidCpf(message = "CPF inválido")
     private String cpf;
 
     @Email(message = "Email deve ser válido")

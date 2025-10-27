@@ -6,11 +6,13 @@ import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/
 import { InvestidorService } from '../../../core/services/investidor.service';
 import { PortfolioService } from '../../../core/services/portfolio.service';
 import { AplicacaoService } from '../../../core/services/aplicacao.service';
+import { AIService } from '../../../core/services/ai.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { InvestidorResponse, PerfilInvestidorOptions } from '../../../core/models/investidor.model';
 import { PortfolioResponse, RiscoCarteiraOptions, TipoCarteiraOptions } from '../../../core/models/portfolio.model';
 import { AplicacaoResponse } from '../../../core/models/aplicacao.model';
+import { NgApexchartsModule } from 'ng-apexcharts';
 
 @Component({
   selector: 'app-investidor-detail',
@@ -19,7 +21,8 @@ import { AplicacaoResponse } from '../../../core/models/aplicacao.model';
     CommonModule,
     RouterLink,
     FooterComponent,
-    ConfirmModalComponent
+    ConfirmModalComponent,
+    NgApexchartsModule
   ],
   templateUrl: './investidor-detail.component.html',
   styleUrl: './investidor-detail.component.scss'
@@ -33,6 +36,14 @@ export class InvestidorDetailComponent implements OnInit {
   showLogoutModal = signal(false);
   userName = signal('');
   investidorId: string = '';
+  
+  // IA Insights
+  aiInsight = signal<string>('');
+  loadingInsight = signal(false);
+
+  // Gráficos
+  chartOptions: any;
+  performanceChartOptions: any;
 
   perfilOptions = PerfilInvestidorOptions;
   riscoOptions = RiscoCarteiraOptions;
@@ -44,9 +55,12 @@ export class InvestidorDetailComponent implements OnInit {
     private investidorService: InvestidorService,
     private portfolioService: PortfolioService,
     private aplicacaoService: AplicacaoService,
+    private aiService: AIService,
     private toastService: ToastService,
     private authService: AuthService
-  ) {}
+  ) {
+    this.initializeCharts();
+  }
 
   ngOnInit(): void {
     const user = this.authService.currentUser();
@@ -84,6 +98,7 @@ export class InvestidorDetailComponent implements OnInit {
           c => c.investidorId === this.investidorId
         );
         this.carteiras.set(carteirasDoInvestidor);
+        this.atualizarGraficos();
       },
       error: (error) => {
         this.toastService.error(error.error?.mensagem || 'Erro ao carregar carteiras');
@@ -187,5 +202,163 @@ export class InvestidorDetailComponent implements OnInit {
 
   get carteirasAtivas(): number {
     return this.carteiras().length;
+  }
+
+  initializeCharts(): void {
+    // Gráfico de Distribuição por Tipo de Carteira
+    this.chartOptions = {
+      series: [],
+      chart: {
+        type: 'donut',
+        height: 300
+      },
+      labels: [],
+      colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'],
+      legend: {
+        position: 'bottom'
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: (val: number) => val.toFixed(1) + '%'
+      }
+    };
+
+    // Gráfico de Desempenho das Carteiras
+    this.performanceChartOptions = {
+      series: [{
+        name: 'Rentabilidade',
+        data: []
+      }],
+      chart: {
+        type: 'bar',
+        height: 300
+      },
+      plotOptions: {
+        bar: {
+          horizontal: false,
+          columnWidth: '55%',
+          dataLabels: {
+            position: 'top'
+          }
+        }
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: (val: number) => val.toFixed(2) + '%',
+        offsetY: -20,
+        style: {
+          fontSize: '12px',
+          colors: ['#304758']
+        }
+      },
+      xaxis: {
+        categories: []
+      },
+      yaxis: {
+        title: {
+          text: 'Rentabilidade (%)'
+        }
+      },
+      colors: ['#10B981'],
+      fill: {
+        type: 'gradient',
+        gradient: {
+          shade: 'light',
+          type: 'vertical',
+          shadeIntensity: 0.25,
+          gradientToColors: undefined,
+          inverseColors: true,
+          opacityFrom: 0.85,
+          opacityTo: 0.85,
+          stops: [50, 0, 100]
+        }
+      }
+    };
+  }
+
+  atualizarGraficos(): void {
+    const carteiras = this.carteiras();
+    
+    // Atualizar gráfico de distribuição por tipo
+    const tiposCount: { [key: string]: number } = {};
+    carteiras.forEach(c => {
+      tiposCount[c.tipo] = (tiposCount[c.tipo] || 0) + 1;
+    });
+
+    this.chartOptions = {
+      ...this.chartOptions,
+      series: Object.values(tiposCount),
+      labels: Object.keys(tiposCount).map(tipo => 
+        this.tipoOptions.find(t => t.value === tipo)?.label || tipo
+      )
+    };
+
+    // Atualizar gráfico de desempenho
+    this.performanceChartOptions = {
+      ...this.performanceChartOptions,
+      series: [{
+        name: 'Rentabilidade',
+        data: carteiras.map(c => c.rentabilidadeAtual)
+      }],
+      xaxis: {
+        categories: carteiras.map(c => c.nome)
+      }
+    };
+  }
+
+  gerarInsightIA(): void {
+    const inv = this.investidor();
+    if (!inv) return;
+
+    this.loadingInsight.set(true);
+
+    const request = {
+      nome: inv.nome,
+      perfil: inv.perfilInvestidor,
+      rendaMensal: inv.rendaMensal,
+      patrimonioAtual: inv.patrimonioAtual
+    };
+
+    this.aiService.analisarPerfil(request).subscribe({
+      next: (response) => {
+        if (response.sucesso && response.data?.analise) {
+          this.aiInsight.set(response.data.analise);
+        }
+        this.loadingInsight.set(false);
+      },
+      error: (error) => {
+        this.toastService.error('Erro ao gerar insight com IA');
+        this.loadingInsight.set(false);
+      }
+    });
+  }
+
+  formatarInsight(texto: string): string {
+    // Converter markdown básico para HTML
+    let html = texto
+      // Títulos com # (processar antes de listas)
+      .replace(/^### (.+)$/gm, '<h3 class="text-lg font-bold text-gray-900 mt-4 mb-2">$1</h3>')
+      .replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold text-gray-900 mt-4 mb-2">$1</h2>')
+      .replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold text-gray-900 mt-4 mb-3">$1</h1>')
+      // Negrito com **texto** (processar antes de itálico)
+      .replace(/\*\*([^*]+)\*\*/g, '<strong class="text-gray-900 font-semibold">$1</strong>')
+      // Lista com * item (apenas no início da linha, após negrito)
+      .replace(/^\* (.+)$/gm, '<li class="ml-4 mb-2 text-gray-700">$1</li>')
+      // Itálico com *texto* (processar por último)
+      .replace(/\*([^*<>]+)\*/g, '<em class="text-gray-700 italic">$1</em>')
+      // Quebras de linha duplas para parágrafos
+      .replace(/\n\n/g, '</p><p class="mb-4 text-gray-700 leading-relaxed">')
+      // Quebras de linha simples
+      .replace(/\n/g, '<br>');
+
+    // Envolver listas em <ul>
+    html = html.replace(/(<li[^>]*>.*?<\/li>(\s*<li[^>]*>.*?<\/li>)*)/gs, '<ul class="mb-4 space-y-2 list-none">$1</ul>');
+    
+    // Envolver todo o conteúdo em parágrafo se necessário
+    if (!html.startsWith('<h') && !html.startsWith('<p') && !html.startsWith('<ul')) {
+      html = '<p class="mb-4 text-gray-700 leading-relaxed">' + html + '</p>';
+    }
+
+    return html;
   }
 }

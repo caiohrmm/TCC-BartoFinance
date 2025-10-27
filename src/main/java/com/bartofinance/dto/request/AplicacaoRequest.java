@@ -2,6 +2,7 @@ package com.bartofinance.dto.request;
 
 import com.bartofinance.model.enums.StatusAplicacao;
 import com.bartofinance.model.enums.TipoProduto;
+import com.bartofinance.validation.ValidCodigoAtivo;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,3 +1,49 @@
 // Estilos específicos do componente
-// Por enquanto, usando apenas classes do Tailwind
 
+// Estilos para formatação do insight da IA
+::ng-deep .prose {
+  strong {
+    @apply text-gray-900 font-semibold;
+  }
+
+  em {
+    @apply text-gray-700 italic;
+  }
+
+  ul {
+    @apply list-none space-y-2 my-4;
+    
+    li {
+      @apply relative pl-6 text-gray-700 leading-relaxed;
+      
+      &::before {
+        content: "•";
+        @apply absolute left-0 text-purple-500 font-bold text-lg;
+      }
+    }
+  }
+
+  p {
+    @apply text-gray-700 leading-relaxed mb-4;
+    
+    &:last-child {
+      @apply mb-0;
+    }
+  }
+
+  h1, h2, h3 {
+    @apply text-gray-900 font-bold;
+  }
+
+  h1 {
+    @apply text-2xl mt-6 mb-3;
+  }
+
+  h2 {
+    @apply text-xl mt-5 mb-2;
+  }
+
+  h3 {
+    @apply text-lg mt-4 mb-2;
+  }
+}

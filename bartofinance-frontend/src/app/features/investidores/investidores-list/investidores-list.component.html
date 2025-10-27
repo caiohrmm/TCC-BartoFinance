@@ -204,10 +204,22 @@
                 class="input" 
                 placeholder="000.000.000-00"
                 appCpfMask
+                maxlength="14"
               >
               @if (investidorForm.get('cpf')?.invalid && investidorForm.get('cpf')?.touched) {
-                <p class="text-red-600 text-sm mt-1">CPF inválido (11 dígitos)</p>
+                <p class="text-red-600 text-sm mt-1">
+                  @if (investidorForm.get('cpf')?.errors?.['required']) {
+                    CPF é obrigatório
+                  } @else if (investidorForm.get('cpf')?.errors?.['pattern']) {
+                    CPF deve conter 11 dígitos
+                  } @else if (investidorForm.get('cpf')?.errors?.['cpfInvalid']) {
+                    CPF inválido
+                  }
+                </p>
               }
+              <p class="text-xs text-gray-500 mt-1">
+                <strong>Formato:</strong> 000.000.000-00 (será validado automaticamente)
+              </p>
             </div>
 
             <!-- Telefone -->

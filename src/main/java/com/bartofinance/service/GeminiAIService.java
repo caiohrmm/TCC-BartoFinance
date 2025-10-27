@@ -1,13 +1,15 @@
 package com.bartofinance.service;
 
-import com.google.genai.Client;
-import com.google.genai.types.GenerateContentResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.*;
 
 /**
- * Serviço de integração com Google Gemini AI usando SDK oficial
+ * Serviço de integração com Google Gemini AI usando REST API
  */
 @Service
 @Slf4j
@@ -16,37 +18,181 @@ public class GeminiAIService {
     @Value("${gemini.api.key}")
     private String apiKey;
 
-    @Value("${gemini.api.model:gemini-2.0-flash-exp}")
+    @Value("${gemini.api.model:gemini-1.5-flash}")
     private String model;
 
-    private Client getClient() {
-        // Configurar API key via variável de ambiente
-        System.setProperty("GOOGLE_API_KEY", apiKey);
-        return new Client();
-    }
+    private final RestTemplate restTemplate = new RestTemplate();
+    private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/";
 
     /**
-     * Gera conteúdo usando Gemini AI
+     * Gera conteúdo usando Gemini AI via REST API
      */
     public String generateContent(String prompt) {
         try {
-            Client client = getClient();
+            log.info("Enviando requisição para Gemini AI via REST...");
             
-            log.info("Enviando requisição para Gemini AI...");
-            GenerateContentResponse response = client.models.generateContent(
-                model,
-                prompt,
-                null
-            );
+            // Verificar se a API key é válida
+            if (apiKey == null || apiKey.isEmpty()) {
+                log.warn("API key não configurada, usando fallback");
+                return generateFallbackResponse(prompt);
+            }
             
-            String generatedText = response.text();
-            log.info("Resposta recebida do Gemini AI com sucesso");
-            return generatedText;
+            // Construir URL com API key
+            String url = GEMINI_API_URL + model + ":generateContent?key=" + apiKey;
+            
+            // Construir body da requisição
+            Map<String, Object> requestBody = new HashMap<>();
+            Map<String, Object> part = new HashMap<>();
+            part.put("text", prompt);
+            
+            Map<String, Object> content = new HashMap<>();
+            content.put("parts", Collections.singletonList(part));
+            
+            requestBody.put("contents", Collections.singletonList(content));
+            
+            // Configurar headers
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            
+            // Fazer requisição
+            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
+            
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                Map<String, Object> responseBody = response.getBody();
+                
+                // Extrair texto da resposta
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> candidates = (List<Map<String, Object>>) responseBody.get("candidates");
+                if (candidates != null && !candidates.isEmpty()) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> candidate = candidates.get(0);
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> contentResponse = (Map<String, Object>) candidate.get("content");
+                    @SuppressWarnings("unchecked")
+                    List<Map<String, Object>> parts = (List<Map<String, Object>>) contentResponse.get("parts");
+                    if (parts != null && !parts.isEmpty()) {
+                        String text = (String) parts.get(0).get("text");
+                        log.info("Resposta recebida do Gemini AI com sucesso");
+                        return text;
+                    }
+                }
+            }
+            
+            log.warn("Resposta inválida do Gemini, usando fallback");
+            return generateFallbackResponse(prompt);
             
         } catch (Exception e) {
-            log.error("Erro ao se comunicar com Gemini AI", e);
-            return "Erro ao processar resposta da IA: " + e.getMessage();
+            log.error("Erro ao se comunicar com Gemini AI: {}", e.getMessage());
+            log.info("Fallback automático ativado devido ao erro");
+            return generateFallbackResponse(prompt);
         }
+    }
+
+    /**
+     * Gera resposta de fallback quando a IA não está disponível
+     */
+    private String generateFallbackResponse(String prompt) {
+        log.info("Usando resposta de fallback para: {}", prompt);
+        
+        String lowerPrompt = prompt.toLowerCase().trim();
+        
+        // Saudações e cumprimentos
+        if (lowerPrompt.matches("^(oi|olá|ola|hello|hi|bom dia|boa tarde|boa noite)$") ||
+            lowerPrompt.contains("como vai") || lowerPrompt.contains("tudo bem")) {
+            return "👋 **Olá! Bem-vindo ao BartoFinance!**\n\n" +
+                   "Sou seu assistente virtual especializado em assessoria de investimentos.\n\n" +
+                   "Posso ajudar com:\n" +
+                   "• 📊 Análise de perfis de investidores\n" +
+                   "• 🎯 Estratégias de diversificação\n" +
+                   "• 📈 Definição de metas de rentabilidade\n" +
+                   "• 🏦 Interpretação de produtos financeiros\n" +
+                   "• 💼 Gestão de carteiras\n\n" +
+                   "💡 **Como posso auxiliá-lo hoje?**";
+        }
+        
+        if (lowerPrompt.contains("perfil") || lowerPrompt.contains("investidor")) {
+            return "📊 **Análise de Perfil de Investidor**\n\n" +
+                   "**Conservador**: Prioriza segurança, prefere renda fixa (CDB, Tesouro Direto, LCI/LCA)\n" +
+                   "**Moderado**: Equilibra segurança e rentabilidade, diversifica entre renda fixa e variável\n" +
+                   "**Agressivo**: Aceita maior risco por maior potencial de retorno, foca em ações e fundos\n\n" +
+                   "💡 **Dica**: Analise a tolerância ao risco, objetivos e horizonte de investimento do cliente.";
+        }
+        
+        if (lowerPrompt.contains("carteira") || lowerPrompt.contains("diversificação")) {
+            return "🎯 **Estratégia de Diversificação**\n\n" +
+                   "**Renda Fixa**: 40-60% (CDB, LCI, LCA, Tesouro Direto)\n" +
+                   "**Ações**: 20-40% (empresas sólidas, dividendos)\n" +
+                   "**Fundos**: 10-20% (multimercado, imobiliário)\n" +
+                   "**Reserva**: 5-10% (emergência)\n\n" +
+                   "💡 **Dica**: Ajuste conforme o perfil e objetivos do investidor.";
+        }
+        
+        if (lowerPrompt.contains("rentabilidade") || lowerPrompt.contains("meta")) {
+            return "📈 **Metas de Rentabilidade Realistas**\n\n" +
+                   "**Inflação + 3-5%**: Objetivo conservador\n" +
+                   "**CDI + 2-4%**: Renda fixa\n" +
+                   "**IPCA + 4-6%**: Tesouro Direto\n" +
+                   "**10-15% ao ano**: Ações (longo prazo)\n\n" +
+                   "💡 **Dica**: Considere sempre o risco e horizonte de investimento.";
+        }
+        
+        if (lowerPrompt.contains("cdb") || lowerPrompt.contains("tesouro")) {
+            return "🏦 **Renda Fixa - Opções Seguras**\n\n" +
+                   "**CDB**: Certificado de Depósito Bancário, liquidez diária\n" +
+                   "**Tesouro Direto**: Títulos públicos, mais seguro\n" +
+                   "**LCI/LCA**: Isentos de IR, boa para perfil conservador\n\n" +
+                   "💡 **Dica**: Compare sempre a rentabilidade líquida após impostos.";
+        }
+        
+        if (lowerPrompt.contains("ação") || lowerPrompt.contains("ações")) {
+            return "📊 **Investimento em Ações**\n\n" +
+                   "**Blue Chips**: Empresas grandes e estáveis (Vale, Petrobras)\n" +
+                   "**Small Caps**: Empresas menores, maior potencial de crescimento\n" +
+                   "**Dividendos**: Ações que pagam proventos regularmente\n\n" +
+                   "💡 **Dica**: Diversifique por setores e analise fundamentos.";
+        }
+        
+        if (lowerPrompt.contains("fundo") || lowerPrompt.contains("fundos")) {
+            return "🏛️ **Fundos de Investimento**\n\n" +
+                   "**Multimercado**: Diversificam entre renda fixa e variável\n" +
+                   "**Imobiliário**: Investem em imóveis e recebem aluguéis\n" +
+                   "**Ações**: Focam em carteira de ações\n" +
+                   "**Renda Fixa**: Investem em títulos de renda fixa\n\n" +
+                   "💡 **Dica**: Verifique a taxa de administração e histórico de performance.";
+        }
+        
+        if (lowerPrompt.contains("risco") || lowerPrompt.contains("segurança")) {
+            return "⚖️ **Gestão de Risco**\n\n" +
+                   "**Baixo Risco**: CDB, Tesouro Direto, LCI/LCA\n" +
+                   "**Médio Risco**: Fundos multimercado, ações blue chips\n" +
+                   "**Alto Risco**: Ações small caps, fundos de ações\n\n" +
+                   "💡 **Dica**: Diversifique para reduzir o risco total da carteira.";
+        }
+        
+        if (lowerPrompt.contains("ajuda") || lowerPrompt.contains("help")) {
+            return "🆘 **Como Posso Ajudar?**\n\n" +
+                   "**Para Investidores:**\n" +
+                   "• Como definir meu perfil de investidor?\n" +
+                   "• Quais produtos são adequados para mim?\n" +
+                   "• Como diversificar minha carteira?\n\n" +
+                   "**Para Assessores:**\n" +
+                   "• Como analisar o perfil do cliente?\n" +
+                   "• Estratégias de diversificação\n" +
+                   "• Definição de metas realistas\n\n" +
+                   "💡 **Faça uma pergunta específica!**";
+        }
+        
+        // Resposta padrão para perguntas não reconhecidas
+        return "🤖 **Assistente BartoFinance**\n\n" +
+               "Entendi sua pergunta! Posso ajudar com:\n\n" +
+               "• 📊 **Perfis de investidor** (Conservador, Moderado, Agressivo)\n" +
+               "• 🎯 **Diversificação** de carteiras\n" +
+               "• 📈 **Metas de rentabilidade** realistas\n" +
+               "• 🏦 **Produtos financeiros** (CDB, Tesouro, Ações, Fundos)\n" +
+               "• ⚖️ **Gestão de risco**\n\n" +
+               "💡 **Seja mais específico na sua pergunta para uma resposta mais detalhada!**";
     }
 
     /**

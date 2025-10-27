@@ -68,8 +68,14 @@ export class CarteiraDetailComponent implements OnInit {
       valorAplicado: [0, [Validators.required, Validators.min(0.01)]],
       quantidade: [0, [Validators.required, Validators.min(0.01)]],
       dataCompra: ['', [Validators.required]],
-      rentabilidadeAtual: [0, [Validators.min(-100), Validators.max(1000)]],
+      rentabilidadeAtual: [0, [Validators.min(-50), Validators.max(200)]],
       notas: ['', [Validators.maxLength(500)]]
+    });
+
+    // Validação dinâmica do código de ativo baseado no tipo de produto
+    this.aplicacaoForm.get('tipoProduto')?.valueChanges.subscribe(tipoProduto => {
+      this.atualizarValidacaoCodigoAtivo(tipoProduto);
+      this.atualizarValidacaoRentabilidade(tipoProduto);
     });
 
     this.encerrarForm = this.fb.group({
@@ -347,6 +353,88 @@ export class CarteiraDetailComponent implements OnInit {
 
   get aplicacoesEncerradas(): number {
     return this.aplicacoes().filter(a => a.status === 'ENCERRADA').length;
+  }
+
+  /**
+   * Atualiza validação do código de ativo baseado no tipo de produto
+   */
+  private atualizarValidacaoCodigoAtivo(tipoProduto: string): void {
+    const codigoAtivoControl = this.aplicacaoForm.get('codigoAtivo');
+    if (!codigoAtivoControl) return;
+
+    // Remove validações anteriores
+    codigoAtivoControl.clearValidators();
+    
+    // Adiciona validações básicas
+    codigoAtivoControl.setValidators([
+      Validators.required,
+      Validators.minLength(2),
+      Validators.maxLength(20)
+    ]);
+
+    // Adiciona validação específica por tipo
+    switch (tipoProduto) {
+      case 'ACAO':
+        codigoAtivoControl.addValidators(Validators.pattern(/^[A-Z]{4}\d{1,2}$/));
+        break;
+      case 'FII':
+        codigoAtivoControl.addValidators(Validators.pattern(/^[A-Z]{4}11$/));
+        break;
+      case 'CDB':
+        codigoAtivoControl.addValidators(Validators.pattern(/^CDB\d{3,6}$/));
+        break;
+      case 'LCI':
+        codigoAtivoControl.addValidators(Validators.pattern(/^LCI\d{3,6}$/));
+        break;
+      case 'LCA':
+        codigoAtivoControl.addValidators(Validators.pattern(/^LCA\d{3,6}$/));
+        break;
+      case 'TESOURO_DIRETO':
+        codigoAtivoControl.addValidators(Validators.pattern(/^(TESOURO|TS)\d{2,4}$/));
+        break;
+      case 'FUNDO_INVESTIMENTO':
+        codigoAtivoControl.addValidators(Validators.pattern(/^[A-Z]{2,6}\d{2,4}$/));
+        break;
+    }
+
+    codigoAtivoControl.updateValueAndValidity();
+  }
+
+  /**
+   * Atualiza validação de rentabilidade baseado no tipo de produto
+   */
+  private atualizarValidacaoRentabilidade(tipoProduto: string): void {
+    const rentabilidadeControl = this.aplicacaoForm.get('rentabilidadeAtual');
+    if (!rentabilidadeControl) return;
+
+    // Remove validações anteriores
+    rentabilidadeControl.clearValidators();
+    
+    // Adiciona validação básica
+    rentabilidadeControl.setValidators([Validators.min(-50)]);
+
+    // Adiciona limite máximo baseado no tipo
+    switch (tipoProduto) {
+      case 'ACAO':
+        rentabilidadeControl.addValidators(Validators.max(200));
+        break;
+      case 'FII':
+        rentabilidadeControl.addValidators(Validators.max(50));
+        break;
+      case 'CDB':
+      case 'LCI':
+      case 'LCA':
+        rentabilidadeControl.addValidators(Validators.max(25));
+        break;
+      case 'TESOURO_DIRETO':
+        rentabilidadeControl.addValidators(Validators.max(15));
+        break;
+      case 'FUNDO_INVESTIMENTO':
+        rentabilidadeControl.addValidators(Validators.max(100));
+        break;
+    }
+
+    rentabilidadeControl.updateValueAndValidity();
   }
 }
 

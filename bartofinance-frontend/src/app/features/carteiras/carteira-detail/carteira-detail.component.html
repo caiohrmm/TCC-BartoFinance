@@ -308,11 +308,25 @@
                 type="text"
                 formControlName="codigoAtivo"
                 class="input"
-                placeholder="Ex: PETR4, VALE3"
+                placeholder="Ex: PETR4 (ações), HGLG11 (FII), CDB001 (CDB)"
+                maxlength="20"
               />
               @if (aplicacaoForm.get('codigoAtivo')?.invalid && aplicacaoForm.get('codigoAtivo')?.touched) {
-                <p class="text-red-600 text-sm mt-1">Código é obrigatório (2-20 caracteres)</p>
+                <p class="text-red-600 text-sm mt-1">
+                  @if (aplicacaoForm.get('codigoAtivo')?.errors?.['required']) {
+                    Código é obrigatório
+                  } @else if (aplicacaoForm.get('codigoAtivo')?.errors?.['minlength']) {
+                    Mínimo 2 caracteres
+                  } @else if (aplicacaoForm.get('codigoAtivo')?.errors?.['maxlength']) {
+                    Máximo 20 caracteres
+                  } @else if (aplicacaoForm.get('codigoAtivo')?.errors?.['pattern']) {
+                    Formato inválido para o tipo de produto selecionado
+                  }
+                </p>
               }
+              <p class="text-xs text-gray-500 mt-1">
+                <strong>Formatos:</strong> PETR4 (ações), HGLG11 (FII), CDB001 (CDB), TESOURO01 (Tesouro)
+              </p>
             </div>
 
             <!-- Valor Aplicado -->
@@ -372,8 +386,21 @@
                 class="input"
                 placeholder="0.00"
                 step="0.01"
+                min="-50"
+                max="200"
               />
-              <p class="text-xs text-gray-500 mt-1">Pode ser negativo (prejuízo)</p>
+              @if (aplicacaoForm.get('rentabilidadeAtual')?.invalid && aplicacaoForm.get('rentabilidadeAtual')?.touched) {
+                <p class="text-red-600 text-sm mt-1">
+                  @if (aplicacaoForm.get('rentabilidadeAtual')?.errors?.['min']) {
+                    Rentabilidade muito baixa (mínimo -50%)
+                  } @else if (aplicacaoForm.get('rentabilidadeAtual')?.errors?.['max']) {
+                    Rentabilidade muito alta para este tipo de produto
+                  }
+                </p>
+              }
+              <p class="text-xs text-gray-500 mt-1">
+                <strong>Limites:</strong> Ações: até 200%, FII: até 50%, CDB/LCI: até 25%, Tesouro: até 15%
+              </p>
             </div>
 
             <!-- Notas -->

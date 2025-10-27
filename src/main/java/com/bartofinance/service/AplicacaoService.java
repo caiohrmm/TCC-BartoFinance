@@ -9,6 +9,8 @@ import com.bartofinance.model.InvestmentPortfolio;
 import com.bartofinance.model.enums.StatusAplicacao;
 import com.bartofinance.repository.AplicacaoRepository;
 import com.bartofinance.repository.InvestmentPortfolioRepository;
+import com.bartofinance.util.CodigoAtivoValidator;
+import com.bartofinance.util.RentabilidadeValidator;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
@@ -53,6 +55,9 @@ public class AplicacaoService {
         if (aplicacaoRepository.existsByPortfolioIdAndCodigoAtivo(request.getPortfolioId(), request.getCodigoAtivo())) {
             throw new BadRequestException("Já existe uma aplicação com o código " + request.getCodigoAtivo() + " neste portfolio");
         }
+
+        // Validações de regras de negócio
+        validarRegrasNegocio(request);
 
         Aplicacao aplicacao = Aplicacao.builder()
                 .portfolioId(request.getPortfolioId())
@@ -285,6 +290,29 @@ public class AplicacaoService {
                 .createdAt(aplicacao.getCreatedAt())
                 .updatedAt(aplicacao.getUpdatedAt())
                 .build();
+    }
+
+    /**
+     * Valida regras de negócio específicas para aplicações
+     */
+    private void validarRegrasNegocio(AplicacaoRequest request) {
+        // 1. Validação de código de ativo por tipo de produto
+        if (!CodigoAtivoValidator.isValid(request.getCodigoAtivo(), request.getTipoProduto())) {
+            throw new BadRequestException(CodigoAtivoValidator.getErrorMessage(request.getTipoProduto()));
+        }
+
+        // 2. Validação de rentabilidade por tipo de produto
+        if (request.getRentabilidadeAtual() != null && 
+            !RentabilidadeValidator.isValid(request.getRentabilidadeAtual(), request.getTipoProduto())) {
+            throw new BadRequestException(RentabilidadeValidator.getErrorMessage(request.getTipoProduto()));
+        }
+
+        // 3. Validação de datas (data de venda deve ser posterior à data de compra)
+        if (request.getDataVenda() != null && request.getDataCompra() != null) {
+            if (request.getDataVenda().isBefore(request.getDataCompra())) {
+                throw new BadRequestException("Data de venda deve ser posterior à data de compra");
+            }
+        }
     }
 }
 
