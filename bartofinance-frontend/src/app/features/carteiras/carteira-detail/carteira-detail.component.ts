@@ -65,9 +65,9 @@ export class CarteiraDetailComponent implements OnInit {
     this.aplicacaoForm = this.fb.group({
       tipoProduto: ['', [Validators.required]],
       codigoAtivo: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(20)]],
-      valorAplicado: [0, [Validators.required, Validators.min(0.01)]],
+      valorAplicado: [0, [Validators.required, Validators.min(1.00)]],
       quantidade: [0, [Validators.required, Validators.min(0.01)]],
-      dataCompra: ['', [Validators.required]],
+      dataCompra: ['', [Validators.required, this.validarDataCompra.bind(this)]],
       rentabilidadeAtual: [0, [Validators.min(-50), Validators.max(200)]],
       notas: ['', [Validators.maxLength(500)]]
     });
@@ -435,6 +435,31 @@ export class CarteiraDetailComponent implements OnInit {
     }
 
     rentabilidadeControl.updateValueAndValidity();
+  }
+
+  /**
+   * Validador customizado para data de compra
+   * Data não pode ser no futuro e não pode ser > 10 anos
+   */
+  validarDataCompra(control: any): any {
+    if (!control.value) return null;
+
+    const dataCompra = new Date(control.value);
+    const agora = new Date();
+    const dezAnosAtras = new Date();
+    dezAnosAtras.setFullYear(agora.getFullYear() - 10);
+
+    // Data não pode ser no futuro
+    if (dataCompra > agora) {
+      return { dataFutura: true };
+    }
+
+    // Data não pode ser > 10 anos
+    if (dataCompra < dezAnosAtras) {
+      return { dataMuitoAntiga: true };
+    }
+
+    return null;
   }
 }
 

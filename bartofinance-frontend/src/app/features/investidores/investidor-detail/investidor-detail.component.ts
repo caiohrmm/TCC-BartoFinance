@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
@@ -7,11 +7,13 @@ import { InvestidorService } from '../../../core/services/investidor.service';
 import { PortfolioService } from '../../../core/services/portfolio.service';
 import { AplicacaoService } from '../../../core/services/aplicacao.service';
 import { AIService } from '../../../core/services/ai.service';
+import { RelatorioService } from '../../../core/services/relatorio.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { InvestidorResponse, PerfilInvestidorOptions } from '../../../core/models/investidor.model';
 import { PortfolioResponse, RiscoCarteiraOptions, TipoCarteiraOptions } from '../../../core/models/portfolio.model';
 import { AplicacaoResponse } from '../../../core/models/aplicacao.model';
+import { InvestidorRelatorioResponse } from '../../../core/models/relatorio.model';
 import { NgApexchartsModule } from 'ng-apexcharts';
 
 @Component({
@@ -41,9 +43,14 @@ export class InvestidorDetailComponent implements OnInit {
   aiInsight = signal<string>('');
   loadingInsight = signal(false);
 
+  // Relatório
+  relatorio = signal<InvestidorRelatorioResponse | null>(null);
+  loadingRelatorio = signal(false);
+
   // Gráficos
   chartOptions: any;
   performanceChartOptions: any;
+  distribTipoChartOptions: any;
 
   perfilOptions = PerfilInvestidorOptions;
   riscoOptions = RiscoCarteiraOptions;
@@ -56,6 +63,7 @@ export class InvestidorDetailComponent implements OnInit {
     private portfolioService: PortfolioService,
     private aplicacaoService: AplicacaoService,
     private aiService: AIService,
+    private relatorioService: RelatorioService,
     private toastService: ToastService,
     private authService: AuthService
   ) {
@@ -72,7 +80,23 @@ export class InvestidorDetailComponent implements OnInit {
     if (this.investidorId) {
       this.carregarInvestidor();
       this.carregarCarteiras();
+      this.carregarRelatorio();
     }
+  }
+
+  carregarRelatorio(): void {
+    this.loadingRelatorio.set(true);
+    this.relatorioService.gerarRelatorioInvestidor(this.investidorId).subscribe({
+      next: (relatorio) => {
+        this.relatorio.set(relatorio);
+        this.loadingRelatorio.set(false);
+      },
+      error: (error) => {
+        console.error('Erro ao carregar relatório:', error);
+        this.loadingRelatorio.set(false);
+        // Não exibe erro para não impactar experiência
+      }
+    });
   }
 
   carregarInvestidor(): void {
@@ -202,6 +226,15 @@ export class InvestidorDetailComponent implements OnInit {
 
   get carteirasAtivas(): number {
     return this.carteiras().length;
+  }
+
+  // Métodos públicos para acesso no template
+  formatarValorRelatorio(valor: number): string {
+    return this.relatorioService.formatarValor(valor);
+  }
+
+  getIconeAlertaRelatorio(nivel: string): string {
+    return this.relatorioService.getIconeAlerta(nivel);
   }
 
   initializeCharts(): void {

@@ -4,6 +4,7 @@ import com.bartofinance.model.enums.StatusAplicacao;
 import com.bartofinance.model.enums.TipoProduto;
 import com.bartofinance.validation.ValidCodigoAtivo;
 import jakarta.validation.constraints.*;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,7 +31,8 @@ public class AplicacaoRequest {
     private String codigoAtivo;
 
     @NotNull(message = "Valor aplicado é obrigatório")
-    @DecimalMin(value = "0.01", message = "Valor aplicado deve ser maior que zero")
+    @DecimalMin(value = "1.00", message = "Valor aplicado deve ser no mínimo R$ 1,00")
+    @DecimalMax(value = "100000000.00", message = "Valor aplicado não pode exceder R$ 100.000.000,00")
     private BigDecimal valorAplicado;
 
     @NotNull(message = "Quantidade é obrigatória")

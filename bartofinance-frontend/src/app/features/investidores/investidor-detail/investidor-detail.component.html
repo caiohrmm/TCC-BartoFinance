@@ -1,6 +1,6 @@
-<div class="min-h-screen bg-gray-50 flex flex-col">
+<div class="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col">
   <!-- Header/Navbar -->
-  <nav class="bg-white shadow-sm border-b border-gray-200">
+  <nav class="bg-white dark:bg-slate-900 shadow-sm border-b border-gray-200 dark:border-slate-700">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-20">
         <div class="flex items-center">
@@ -120,6 +120,76 @@
           </p>
         </div>
       </div>
+
+      <!-- Relatório Completo -->
+      @if (relatorio(); as rel) {
+        <div class="card mb-8 bg-gradient-to-br from-blue-50 to-green-50 border-2 border-blue-200 animate-slide-up">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <span class="text-2xl">📊</span>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-gray-900">Relatório Completo do Investidor</h3>
+              <p class="text-sm text-gray-600">Estatísticas detalhadas e análise profunda</p>
+            </div>
+            <span [class]="'ml-auto badge text-white bg-' + (rel.nivelAlerta === 'BAIXO' ? 'green' : rel.nivelAlerta === 'MEDIO' ? 'yellow' : 'red') + '-600'">
+              {{ rel.nivelAlerta === 'BAIXO' ? '✅' : rel.nivelAlerta === 'MEDIO' ? '⚠️' : '🚨' }} {{ rel.nivelAlerta }}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Estatísticas por Status -->
+            <div class="bg-white p-4 rounded-lg border border-gray-200">
+              <h4 class="font-bold text-gray-900 mb-3">Aplicações por Status</h4>
+              <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">🟢 Ativas</span>
+                  <span class="font-bold text-green-600">{{ rel.aplicacoesAtivas }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">🔴 Encerradas</span>
+                  <span class="font-bold text-red-600">{{ rel.aplicacoesEncerradas }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">📦 Resgatadas</span>
+                  <span class="font-bold text-blue-600">{{ rel.aplicacoesResgatadas }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Estatísticas por Tipo -->
+            <div class="bg-white p-4 rounded-lg border border-gray-200">
+              <h4 class="font-bold text-gray-900 mb-3">Distribuição por Tipo</h4>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-600">📈 Ações</span>
+                  <span class="font-bold">{{ formatarValorRelatorio(rel.valorEmAcoes) }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-600">🏢 FIIs</span>
+                  <span class="font-bold">{{ formatarValorRelatorio(rel.valorEmFII) }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-600">💰 Renda Fixa</span>
+                  <span class="font-bold">{{ formatarValorRelatorio(rel.valorEmRendaFixa) }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-600">📊 Fundos</span>
+                  <span class="font-bold">{{ formatarValorRelatorio(rel.valorEmFundos) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recomendação Principal -->
+          <div class="bg-white p-4 rounded-lg border-2 border-blue-300">
+            <h4 class="font-bold text-gray-900 mb-2 flex items-center gap-2">
+              {{ getIconeAlertaRelatorio(rel.nivelAlerta) }} Recomendação Principal
+            </h4>
+            <p class="text-sm text-gray-700">{{ rel.recomendacaoPrincipal }}</p>
+          </div>
+        </div>
+      }
 
       <!-- Bloco de Insights de IA -->
       <div class="card mb-8 bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200 animate-slide-up">

@@ -44,7 +44,6 @@ export class CarteirasListComponent implements OnInit {
   // Modais de confirmação
   showDeleteModal = signal(false);
   showLogoutModal = signal(false);
-  showSimulateModal = signal(false);
   carteiraToDelete = signal<PortfolioResponse | null>(null);
 
   constructor(
@@ -214,45 +213,6 @@ export class CarteirasListComponent implements OnInit {
       }
     });
   }
-
-  abrirModalSimulacao(): void {
-    this.isEditing.set(false);
-    this.currentCarteiraId.set(null);
-    this.carteiraForm.reset({
-      metaRentabilidade: 0
-    });
-    this.showSimulateModal.set(true);
-  }
-
-  fecharModalSimulacao(): void {
-    this.showSimulateModal.set(false);
-    this.carteiraForm.reset();
-  }
-
-  simularCarteira(): void {
-    if (this.carteiraForm.invalid) {
-      this.toastService.warning('Por favor, preencha todos os campos corretamente');
-      return;
-    }
-
-    this.loading.set(true);
-    const request: PortfolioRequest = this.carteiraForm.value;
-
-    this.portfolioService.simularPortfolio(request).subscribe({
-      next: (response) => {
-        this.loading.set(false);
-        this.toastService.success('Simulação realizada com sucesso!');
-        this.fecharModalSimulacao();
-        // Exibir resultado da simulação (você pode expandir isso)
-        this.toastService.info(`Rentabilidade estimada: ${response.data.rentabilidadeAtual}%`);
-      },
-      error: (error) => {
-        this.loading.set(false);
-        this.toastService.error(error.error?.mensagem || 'Erro ao simular carteira');
-      }
-    });
-  }
-
   abrirModalExclusao(carteira: PortfolioResponse): void {
     this.carteiraToDelete.set(carteira);
     this.showDeleteModal.set(true);

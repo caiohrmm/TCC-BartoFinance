@@ -1,6 +1,6 @@
-<div class="min-h-screen bg-gray-50 flex flex-col">
+<div class="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col">
   <!-- Header/Navbar -->
-  <nav class="bg-white shadow-sm border-b border-gray-200">
+  <nav class="bg-white dark:bg-slate-900 shadow-sm border-b border-gray-200 dark:border-slate-700">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-20">
         <div class="flex items-center">
@@ -341,8 +341,17 @@
                 appCurrencyMask
               />
               @if (aplicacaoForm.get('valorAplicado')?.invalid && aplicacaoForm.get('valorAplicado')?.touched) {
-                <p class="text-red-600 text-sm mt-1">Valor deve ser maior que zero</p>
+                <p class="text-red-600 text-sm mt-1">
+                  @if (aplicacaoForm.get('valorAplicado')?.errors?.['min']) {
+                    ❌ Valor mínimo: R$ 1,00
+                  } @else if (aplicacaoForm.get('valorAplicado')?.errors?.['max']) {
+                    ❌ Valor máximo: R$ 100.000.000,00
+                  }
+                </p>
               }
+              <p class="text-xs text-gray-500 mt-1">
+                <strong>Limite:</strong> Entre R$ 1,00 e R$ 100.000.000,00
+              </p>
             </div>
 
             <!-- Quantidade -->
@@ -372,7 +381,15 @@
                 class="input"
               />
               @if (aplicacaoForm.get('dataCompra')?.invalid && aplicacaoForm.get('dataCompra')?.touched) {
-                <p class="text-red-600 text-sm mt-1">Data é obrigatória</p>
+                <p class="text-red-600 text-sm mt-1">
+                  @if (aplicacaoForm.get('dataCompra')?.errors?.['required']) {
+                    Data é obrigatória
+                  } @else if (aplicacaoForm.get('dataCompra')?.errors?.['dataFutura']) {
+                    ❌ Data não pode ser no futuro
+                  } @else if (aplicacaoForm.get('dataCompra')?.errors?.['dataMuitoAntiga']) {
+                    ❌ Data não pode ser anterior a 10 anos
+                  }
+                </p>
               }
             </div>
 

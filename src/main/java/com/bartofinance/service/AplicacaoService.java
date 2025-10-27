@@ -307,10 +307,40 @@ public class AplicacaoService {
             throw new BadRequestException(RentabilidadeValidator.getErrorMessage(request.getTipoProduto()));
         }
 
-        // 3. Validação de datas (data de venda deve ser posterior à data de compra)
+        // 3. Validação de data de compra (não pode ser no futuro)
+        LocalDateTime agora = LocalDateTime.now();
+        if (request.getDataCompra() != null) {
+            if (request.getDataCompra().isAfter(agora)) {
+                throw new BadRequestException("Data de compra não pode ser no futuro");
+            }
+            
+            // Data de compra não pode ser muito antiga (> 10 anos)
+            LocalDateTime dezAnosAtras = agora.minusYears(10);
+            if (request.getDataCompra().isBefore(dezAnosAtras)) {
+                throw new BadRequestException("Data de compra não pode ser anterior a 10 anos");
+            }
+        }
+
+        // 4. Validação de datas (data de venda deve ser posterior à data de compra)
         if (request.getDataVenda() != null && request.getDataCompra() != null) {
             if (request.getDataVenda().isBefore(request.getDataCompra())) {
                 throw new BadRequestException("Data de venda deve ser posterior à data de compra");
+            }
+            
+            // Data de venda não pode ser no futuro
+            if (request.getDataVenda().isAfter(agora)) {
+                throw new BadRequestException("Data de venda não pode ser no futuro");
+            }
+        }
+        
+        // 5. Validação de consistência: status vs. data de venda
+        if (request.getStatus() != null) {
+            if (request.getStatus() == StatusAplicacao.ATIVA && request.getDataVenda() != null) {
+                throw new BadRequestException("Aplicação ATIVA não pode ter data de venda preenchida");
+            }
+            
+            if (request.getStatus() == StatusAplicacao.ENCERRADA && request.getDataVenda() == null) {
+                throw new BadRequestException("Aplicação ENCERRADA deve ter data de venda preenchida");
             }
         }
     }
