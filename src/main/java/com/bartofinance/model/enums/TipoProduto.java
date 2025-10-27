@@ -9,6 +9,9 @@ public enum TipoProduto {
     ACOES("Ações"),
     FUNDOS("Fundos de Investimento"),
     CRIPTOMOEDAS("Criptomoedas"),
+    FII("Fundos Imobiliários"),
+    LCI("Letra de Crédito Imobiliário"),
+    LCA("Letra de Crédito do Agronegócio"),
     OUTROS("Outros");
 
     private final String descricao;

@@ -51,6 +51,9 @@ public class RentabilidadeValidator {
             case CDB -> CDB_MAX_RENTABILIDADE;
             case TESOURO_DIRETO -> TESOURO_MAX_RENTABILIDADE;
             case CRIPTOMOEDAS -> FUNDO_MAX_RENTABILIDADE; // Para criptomoedas, usa limite de fundos
+            case FII -> FII_MAX_RENTABILIDADE;
+            case LCI -> LCI_MAX_RENTABILIDADE;
+            case LCA -> LCA_MAX_RENTABILIDADE;
             case OUTROS -> FUNDO_MAX_RENTABILIDADE; // Para outros tipos, usa limite padrão
         };
     }
