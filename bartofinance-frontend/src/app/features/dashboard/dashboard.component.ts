@@ -8,12 +8,13 @@ import { AplicacaoService } from '../../core/services/aplicacao.service';
 import { BrapiService, BrapiQuote } from '../../core/services/brapi.service';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal.component';
+import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme-toggle.component';
 import { forkJoin, interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, FooterComponent, ConfirmModalComponent],
+  imports: [CommonModule, RouterLink, FooterComponent, ConfirmModalComponent, ThemeToggleComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
@@ -31,9 +32,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // Cotações da Brapi
   marketQuotes = signal<BrapiQuote[]>([]);
   topStocks = signal<BrapiQuote[]>([]);
-  fiis = signal<BrapiQuote[]>([]);
+  currencies = signal<BrapiQuote[]>([]);
   internationalIndices = signal<BrapiQuote[]>([]);
   loadingQuotes = signal(true);
+  
+  // Controles de expansão "Ver mais"
+  expandedStocks = signal(false);
+  expandedCurrencies = signal(false);
+  expandedInternational = signal(false);
+  
   private quotesSubscription?: Subscription;
 
   constructor(
@@ -121,13 +128,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     forkJoin({
       indices: this.brapiService.getMainIndices(),
       stocks: this.brapiService.getTopStocks(),
-      fiis: this.brapiService.getTopFIIs(),
+      currencies: this.brapiService.getTopCurrencies(),
       international: this.brapiService.getInternationalIndices()
     }).subscribe({
       next: (response) => {
         this.marketQuotes.set(response.indices.results || []);
         this.topStocks.set(response.stocks.results || []);
-        this.fiis.set(response.fiis.results || []);
+        this.currencies.set(response.currencies.results || []);
         this.internationalIndices.set(response.international.results || []);
         this.loadingQuotes.set(false);
       },
@@ -136,6 +143,34 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.loadingQuotes.set(false);
       }
     });
+  }
+
+  // Métodos para expandir/recolher listas
+  toggleExpandStocks(): void {
+    this.expandedStocks.set(!this.expandedStocks());
+  }
+
+  toggleExpandCurrencies(): void {
+    this.expandedCurrencies.set(!this.expandedCurrencies());
+  }
+
+  toggleExpandInternational(): void {
+    this.expandedInternational.set(!this.expandedInternational());
+  }
+
+  // Método para pegar apenas os primeiros 3 itens ou todos se expandido
+  getFirstItems<T>(items: T[], expanded: boolean): T[] {
+    return expanded ? items : items.slice(0, 3);
+  }
+
+  // Verifica se tem mais itens para mostrar
+  hasMoreItems(items: any[], expanded: boolean): boolean {
+    return items.length > 3 && !expanded;
+  }
+
+  // Verifica se está expandido e pode recolher
+  canCollapse(items: any[], expanded: boolean): boolean {
+    return items.length > 3 && expanded;
   }
 }
 

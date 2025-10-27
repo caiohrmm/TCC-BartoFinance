@@ -1,6 +1,11 @@
 <div
-  class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-gray-100 p-4"
+  class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4"
 >
+  <!-- Theme Toggle -->
+  <div class="absolute top-4 right-4">
+    <app-theme-toggle></app-theme-toggle>
+  </div>
+
   <div class="w-full max-w-md">
     <!-- Logo/Brand -->
     <div class="text-center animate-fade-in mb-6">
@@ -9,7 +14,7 @@
 
     <!-- Register Card -->
     <div class="card animate-slide-up">
-      <h2 class="text-2xl font-bold text-center mb-6">Criar Conta</h2>
+      <h2 class="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-gray-100">Criar Conta</h2>
 
       <!-- Form -->
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
@@ -88,11 +93,11 @@
       </form>
 
       <!-- Login Link -->
-      <div class="mt-6 text-center text-sm text-gray-600">
+      <div class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
         Já tem uma conta?
         <a
           routerLink="/login"
-          class="text-primary-600 hover:text-primary-700 font-medium ml-1"
+          class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium ml-1"
         >
           Faça login
         </a>
@@ -100,7 +105,7 @@
     </div>
 
     <!-- Footer -->
-    <p class="text-center text-sm text-gray-500 mt-8">
+    <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-8">
       © 2025 Todos os direitos reservados.
     </p>
   </div>

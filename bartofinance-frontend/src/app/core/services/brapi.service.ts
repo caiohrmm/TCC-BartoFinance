@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, catchError, of } from 'rxjs';
+import axios, { AxiosError } from 'axios';
+import { Observable, from, of, forkJoin } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 export interface BrapiQuote {
@@ -34,48 +35,40 @@ export class BrapiService {
   private readonly API_URL = 'https://brapi.dev/api';
   private readonly API_KEY = environment.brapiApiKey;
 
-  constructor(private http: HttpClient) {}
+  constructor() {}
 
   /**
-   * Busca cotações de múltiplos ativos
-   * @param symbols Array de símbolos (ex: ['PETR4', 'VALE3', 'ITUB4'])
+   * Busca cotações de múltiplos ativos usando Axios
+   * IMPORTANTE: O plano FREE só permite 1 ação por requisição
+   * Fazemos uma requisição por ação e combinamos os resultados
    */
   getQuotes(symbols: string[]): Observable<BrapiResponse> {
-    const symbolsStr = symbols.join(',');
+    console.log('📡 [BRAPI] Buscando:', symbols.join(', '));
+    console.log('⚠️ [BRAPI] Free tier: fazendo 1 requisição por ação');
     
-    // Ações gratuitas que não precisam de token (conforme doc Brapi)
-    const freeStocks = ['PETR4', 'MGLU3', 'VALE3', 'ITUB4'];
-    const allFree = symbols.every(s => freeStocks.includes(s));
-
-    // Se todas as ações são gratuitas, não usa token
-    if (allFree) {
-      console.log('🆓 Buscando ações gratuitas (free tier):', symbolsStr);
-      return this.http.get<BrapiResponse>(`${this.API_URL}/quote/${symbolsStr}`)
+    // Para o plano free, fazemos uma requisição por ação
+    const requests = symbols.map(symbol => {
+      const url = `${this.API_URL}/quote/${symbol}?token=${this.API_KEY}`;
+      
+      return from(axios.get<BrapiResponse>(url))
         .pipe(
-          catchError(error => {
-            console.error('❌ Erro ao buscar free stocks:', error);
-            console.warn('ℹ️ Usando dados de exemplo');
-            return of(this.getMockData(symbols));
+          map(response => response.data.results[0]),
+          catchError((error: AxiosError) => {
+            console.error(`❌ [BRAPI] Erro ao buscar ${symbol}:`, error.response?.status);
+            return of(this.getMockData([symbol]).results[0]);
           })
         );
-    }
-
-    // Para outros ativos, usa query param ?token= (conforme doc Brapi)
-    if (!this.API_KEY) {
-      console.warn('⚠️ API Key não configurada. Usando dados de exemplo.');
-      return of(this.getMockData(symbols));
-    }
-
-    console.log('🔐 Buscando com token:', symbolsStr);
+    });
     
-    // Brapi usa query parameter, não Bearer token
-    return this.http.get<BrapiResponse>(`${this.API_URL}/quote/${symbolsStr}?token=${this.API_KEY}`)
+    // forkJoin combina todos os Observables e retorna quando todos completarem
+    return forkJoin(requests)
       .pipe(
-        catchError(error => {
-          console.error('❌ Erro ao buscar cotações:', error);
-          console.warn('ℹ️ Usando dados de exemplo. Verifique se o token está válido em https://brapi.dev/dashboard');
-          return of(this.getMockData(symbols));
-        })
+        map((results: BrapiQuote[]) => ({
+          results: results.filter(r => r !== null && r !== undefined),
+          requestedAt: new Date().toISOString(),
+          took: '0ms'
+        })),
+        catchError(() => of(this.getMockData(symbols)))
       );
   }
 
@@ -131,6 +124,102 @@ export class BrapiService {
         regularMarketOpen: 6.13,
         regularMarketDayHigh: 6.15,
         regularMarketDayLow: 6.11
+      },
+      'GBPBRL=X': {
+        symbol: 'GBPBRL=X',
+        shortName: 'Libra Esterlina',
+        longName: 'Libra Esterlina / Real',
+        currency: 'BRL',
+        regularMarketPrice: 7.08,
+        regularMarketChange: 0.05,
+        regularMarketChangePercent: 0.71,
+        regularMarketTime: new Date().toISOString(),
+        marketCap: 0,
+        regularMarketVolume: 0,
+        regularMarketPreviousClose: 7.03,
+        regularMarketOpen: 7.05,
+        regularMarketDayHigh: 7.10,
+        regularMarketDayLow: 7.02
+      },
+      'JPYBRL=X': {
+        symbol: 'JPYBRL=X',
+        shortName: 'Iene Japonês',
+        longName: 'Iene Japonês / Real',
+        currency: 'BRL',
+        regularMarketPrice: 0.038,
+        regularMarketChange: 0.0002,
+        regularMarketChangePercent: 0.53,
+        regularMarketTime: new Date().toISOString(),
+        marketCap: 0,
+        regularMarketVolume: 0,
+        regularMarketPreviousClose: 0.0378,
+        regularMarketOpen: 0.0379,
+        regularMarketDayHigh: 0.0385,
+        regularMarketDayLow: 0.0377
+      },
+      'CNYBRL=X': {
+        symbol: 'CNYBRL=X',
+        shortName: 'Yuan Chinês',
+        longName: 'Yuan Chinês / Real',
+        currency: 'BRL',
+        regularMarketPrice: 0.78,
+        regularMarketChange: -0.01,
+        regularMarketChangePercent: -1.27,
+        regularMarketTime: new Date().toISOString(),
+        marketCap: 0,
+        regularMarketVolume: 0,
+        regularMarketPreviousClose: 0.79,
+        regularMarketOpen: 0.785,
+        regularMarketDayHigh: 0.80,
+        regularMarketDayLow: 0.77
+      },
+      'CHFBRL=X': {
+        symbol: 'CHFBRL=X',
+        shortName: 'Franco Suíço',
+        longName: 'Franco Suíço / Real',
+        currency: 'BRL',
+        regularMarketPrice: 6.35,
+        regularMarketChange: 0.03,
+        regularMarketChangePercent: 0.47,
+        regularMarketTime: new Date().toISOString(),
+        marketCap: 0,
+        regularMarketVolume: 0,
+        regularMarketPreviousClose: 6.32,
+        regularMarketOpen: 6.33,
+        regularMarketDayHigh: 6.38,
+        regularMarketDayLow: 6.30
+      },
+      'CADBRL=X': {
+        symbol: 'CADBRL=X',
+        shortName: 'Dólar Canadense',
+        longName: 'Dólar Canadense / Real',
+        currency: 'BRL',
+        regularMarketPrice: 4.18,
+        regularMarketChange: 0.02,
+        regularMarketChangePercent: 0.48,
+        regularMarketTime: new Date().toISOString(),
+        marketCap: 0,
+        regularMarketVolume: 0,
+        regularMarketPreviousClose: 4.16,
+        regularMarketOpen: 4.17,
+        regularMarketDayHigh: 4.20,
+        regularMarketDayLow: 4.15
+      },
+      'AUDBRL=X': {
+        symbol: 'AUDBRL=X',
+        shortName: 'Dólar Australiano',
+        longName: 'Dólar Australiano / Real',
+        currency: 'BRL',
+        regularMarketPrice: 3.78,
+        regularMarketChange: -0.01,
+        regularMarketChangePercent: -0.26,
+        regularMarketTime: new Date().toISOString(),
+        marketCap: 0,
+        regularMarketVolume: 0,
+        regularMarketPreviousClose: 3.79,
+        regularMarketOpen: 3.785,
+        regularMarketDayHigh: 3.82,
+        regularMarketDayLow: 3.76
       },
       'PETR4': {
         symbol: 'PETR4',
@@ -195,6 +284,38 @@ export class BrapiService {
         regularMarketOpen: 8.95,
         regularMarketDayHigh: 9.10,
         regularMarketDayLow: 8.70
+      },
+      'BBDC4': {
+        symbol: 'BBDC4',
+        shortName: 'Bradesco PN',
+        longName: 'Banco Bradesco S.A.',
+        currency: 'BRL',
+        regularMarketPrice: 13.85,
+        regularMarketChange: 0.15,
+        regularMarketChangePercent: 1.09,
+        regularMarketTime: new Date().toISOString(),
+        marketCap: 135000000000,
+        regularMarketVolume: 20000000,
+        regularMarketPreviousClose: 13.70,
+        regularMarketOpen: 13.75,
+        regularMarketDayHigh: 13.90,
+        regularMarketDayLow: 13.68
+      },
+      'B3SA3': {
+        symbol: 'B3SA3',
+        shortName: 'B3 ON',
+        longName: 'B3 S.A. - Brasil, Bolsa, Balcão',
+        currency: 'BRL',
+        regularMarketPrice: 11.25,
+        regularMarketChange: -0.10,
+        regularMarketChangePercent: -0.88,
+        regularMarketTime: new Date().toISOString(),
+        marketCap: 60000000000,
+        regularMarketVolume: 18000000,
+        regularMarketPreviousClose: 11.35,
+        regularMarketOpen: 11.30,
+        regularMarketDayHigh: 11.40,
+        regularMarketDayLow: 11.20
       },
       // FIIs
       'HGLG11': {
@@ -325,6 +446,86 @@ export class BrapiService {
         regularMarketOpen: 66500.00,
         regularMarketDayHigh: 67500.00,
         regularMarketDayLow: 66200.00
+      },
+      'ETH-USD': {
+        symbol: 'ETH-USD',
+        shortName: 'Ethereum',
+        longName: 'Ethereum USD',
+        currency: 'USD',
+        regularMarketPrice: 3456.78,
+        regularMarketChange: 56.78,
+        regularMarketChangePercent: 1.67,
+        regularMarketTime: new Date().toISOString(),
+        marketCap: 420000000000,
+        regularMarketVolume: 18000000000,
+        regularMarketPreviousClose: 3400.00,
+        regularMarketOpen: 3420.00,
+        regularMarketDayHigh: 3480.00,
+        regularMarketDayLow: 3380.00
+      },
+      'GC=F': {
+        symbol: 'GC=F',
+        shortName: 'Ouro',
+        longName: 'Gold Futures',
+        currency: 'USD',
+        regularMarketPrice: 2654.80,
+        regularMarketChange: 12.40,
+        regularMarketChangePercent: 0.47,
+        regularMarketTime: new Date().toISOString(),
+        marketCap: 0,
+        regularMarketVolume: 0,
+        regularMarketPreviousClose: 2642.40,
+        regularMarketOpen: 2645.00,
+        regularMarketDayHigh: 2660.00,
+        regularMarketDayLow: 2640.00
+      },
+      '^IXIC': {
+        symbol: '^IXIC',
+        shortName: 'Nasdaq',
+        longName: 'Nasdaq Composite Index',
+        currency: 'USD',
+        regularMarketPrice: 17234.56,
+        regularMarketChange: 89.23,
+        regularMarketChangePercent: 0.52,
+        regularMarketTime: new Date().toISOString(),
+        marketCap: 0,
+        regularMarketVolume: 0,
+        regularMarketPreviousClose: 17145.33,
+        regularMarketOpen: 17180.00,
+        regularMarketDayHigh: 17280.00,
+        regularMarketDayLow: 17120.00
+      },
+      '^N225': {
+        symbol: '^N225',
+        shortName: 'Nikkei 225',
+        longName: 'Nikkei 225 Index (Japão)',
+        currency: 'JPY',
+        regularMarketPrice: 38543.90,
+        regularMarketChange: 234.56,
+        regularMarketChangePercent: 0.61,
+        regularMarketTime: new Date().toISOString(),
+        marketCap: 0,
+        regularMarketVolume: 0,
+        regularMarketPreviousClose: 38309.34,
+        regularMarketOpen: 38380.00,
+        regularMarketDayHigh: 38680.00,
+        regularMarketDayLow: 38250.00
+      },
+      '^FTSE': {
+        symbol: '^FTSE',
+        shortName: 'FTSE 100',
+        longName: 'FTSE 100 Index (UK)',
+        currency: 'GBP',
+        regularMarketPrice: 8234.56,
+        regularMarketChange: -45.23,
+        regularMarketChangePercent: -0.55,
+        regularMarketTime: new Date().toISOString(),
+        marketCap: 0,
+        regularMarketVolume: 0,
+        regularMarketPreviousClose: 8279.79,
+        regularMarketOpen: 8260.00,
+        regularMarketDayHigh: 8290.00,
+        regularMarketDayLow: 8210.00
       }
     };
 
@@ -356,27 +557,31 @@ export class BrapiService {
 
   /**
    * Busca ações mais negociadas do dia
-   * Usando apenas ações GRATUITAS (PETR4, VALE3, ITUB4, MGLU3)
    */
   getTopStocks(): Observable<BrapiResponse> {
     return this.getQuotes([
-      'PETR4',  // Petrobras ⭐ GRÁTIS
-      'VALE3',  // Vale ⭐ GRÁTIS
-      'ITUB4',  // Itaú ⭐ GRÁTIS
-      'MGLU3'   // Magazine Luiza ⭐ GRÁTIS
+      'PETR4',  // Petrobras
+      'VALE3',  // Vale
+      'ITUB4',  // Itaú
+      'BBDC4',  // Bradesco
+      'MGLU3',  // Magazine Luiza
+      'B3SA3'   // B3
     ]);
   }
 
   /**
-   * Busca FIIs populares
+   * Busca moedas (câmbio)
    */
-  getTopFIIs(): Observable<BrapiResponse> {
+  getTopCurrencies(): Observable<BrapiResponse> {
     return this.getQuotes([
-      'HGLG11',  // CSHG Logística
-      'KNRI11',  // Kinea Renda Imobiliária
-      'VISC11',  // Vinci Shopping Centers
-      'MXRF11',  // Maxi Renda
-      'BCFF11'   // BTG Pactual Fundo de Fundos
+      'USDBRL=X',  // Dólar
+      'EURBRL=X',  // Euro
+      'GBPBRL=X',  // Libra Esterlina
+      'JPYBRL=X',  // Iene Japonês
+      'CNYBRL=X',  // Yuan Chinês
+      'CHFBRL=X',  // Franco Suíço
+      'CADBRL=X',  // Dólar Canadense
+      'AUDBRL=X'   // Dólar Australiano
     ]);
   }
 
@@ -387,7 +592,12 @@ export class BrapiService {
     return this.getQuotes([
       '^GSPC',   // S&P 500
       '^DJI',    // Dow Jones
-      'BTC-USD'  // Bitcoin
+      '^IXIC',   // Nasdaq Composite
+      '^N225',   // Nikkei 225 (Japão)
+      '^FTSE',   // FTSE 100 (Reino Unido)
+      'BTC-USD', // Bitcoin
+      'ETH-USD', // Ethereum
+      'GC=F'     // Ouro (Gold)
     ]);
   }
 

@@ -1,6 +1,6 @@
-<div class="min-h-screen bg-gray-50 flex flex-col">
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
   <!-- Header/Navbar -->
-  <nav class="bg-white shadow-sm border-b border-gray-200">
+  <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-20">
         <!-- Logo -->
@@ -15,20 +15,21 @@
 
         <!-- Navigation Links -->
         <div class="hidden md:flex items-center space-x-8">
-          <a routerLink="/dashboard" class="text-gray-900 hover:text-primary-600 font-medium transition">
+          <a routerLink="/dashboard" class="text-gray-900 dark:text-gray-100 hover:text-primary-600 font-medium transition">
             Dashboard
           </a>
-          <a routerLink="/investidores" class="text-gray-600 hover:text-primary-600 transition">
+          <a routerLink="/investidores" class="text-gray-600 dark:text-gray-400 hover:text-primary-600 transition">
             Investidores
           </a>
-          <a routerLink="/carteiras" class="text-gray-600 hover:text-primary-600 transition">
+          <a routerLink="/carteiras" class="text-gray-600 dark:text-gray-400 hover:text-primary-600 transition">
             Carteiras
           </a>
         </div>
 
         <!-- User Menu -->
         <div class="flex items-center space-x-4">
-          <span class="text-sm text-gray-700">Olá, <span class="font-semibold">{{ userName() }}</span></span>
+          <app-theme-toggle></app-theme-toggle>
+          <span class="text-sm text-gray-700 dark:text-gray-300">Olá, <span class="font-semibold">{{ userName() }}</span></span>
           <button (click)="abrirModalLogout()" class="btn-ghost text-sm">
             Sair
           </button>
@@ -41,8 +42,8 @@
   <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
     <!-- Welcome Section -->
     <div class="mb-8 animate-fade-in">
-      <h2 class="text-3xl font-bold text-gray-900 mb-2">Bem-vindo de volta! 👋</h2>
-      <p class="text-gray-600">Aqui está um resumo da sua carteira de clientes</p>
+      <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Bem-vindo de volta! 👋</h2>
+      <p class="text-gray-600 dark:text-gray-400">Aqui está um resumo da sua carteira de clientes</p>
     </div>
 
     <!-- Stats Grid -->
@@ -53,80 +54,61 @@
       </div>
     } @else {
     
-    <!-- Aviso sobre dados da Brapi -->
-    @if (marketQuotes().length > 0 || topStocks().length > 0) {
-      <div class="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-lg animate-fade-in">
-        <div class="flex items-start gap-3">
-          <span class="text-2xl">ℹ️</span>
-          <div class="flex-1">
-            <h4 class="font-semibold text-blue-900 mb-1">Cotações em Tempo Real</h4>
-            <p class="text-sm text-blue-800">
-              Exibindo <strong>ações gratuitas</strong> da Brapi (PETR4, VALE3, ITUB4, MGLU3).
-              Demais ativos usam dados de exemplo. 
-              <a href="https://brapi.dev/dashboard" target="_blank" class="underline font-medium hover:text-blue-900">
-                Obtenha acesso completo →
-              </a>
-            </p>
-          </div>
-        </div>
-      </div>
-    }
-    
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <!-- Card 1: Investidores -->
       <div class="card animate-slide-up hover:scale-105 transition-transform cursor-pointer" routerLink="/investidores">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600 mb-1">Investidores</p>
-            <p class="text-3xl font-bold text-gray-900">{{ stats().investidores }}</p>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Investidores</p>
+            <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{ stats().investidores }}</p>
           </div>
           <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
             <span class="text-2xl">👥</span>
           </div>
         </div>
-        <p class="text-xs text-gray-500 mt-3">Total de clientes ativos</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">Total de clientes ativos</p>
       </div>
 
       <!-- Card 2: Carteiras -->
       <div class="card animate-slide-up animation-delay-200 hover:scale-105 transition-transform cursor-pointer" routerLink="/carteiras">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600 mb-1">Carteiras</p>
-            <p class="text-3xl font-bold text-gray-900">{{ stats().carteiras }}</p>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Carteiras</p>
+            <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{ stats().carteiras }}</p>
           </div>
-          <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+          <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
             <span class="text-2xl">💼</span>
           </div>
         </div>
-        <p class="text-xs text-gray-500 mt-3">Portfólios gerenciados</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">Portfólios gerenciados</p>
       </div>
 
       <!-- Card 3: Aplicações -->
       <div class="card animate-slide-up animation-delay-400 hover:scale-105 transition-transform cursor-pointer" routerLink="/carteiras">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600 mb-1">Aplicações</p>
-            <p class="text-3xl font-bold text-gray-900">{{ stats().aplicacoes }}</p>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Aplicações</p>
+            <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{ stats().aplicacoes }}</p>
           </div>
-          <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+          <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center">
             <span class="text-2xl">📊</span>
           </div>
         </div>
-        <p class="text-xs text-gray-500 mt-3">Investimentos ativos</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">Investimentos ativos</p>
       </div>
 
       <!-- Card 4: Valor Total -->
       <div class="card animate-slide-up animation-delay-400 hover:scale-105 transition-transform cursor-pointer" routerLink="/carteiras">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600 mb-1">Valor Total</p>
-            <p class="text-2xl font-bold text-gray-900">R$ {{ stats().valorTotal | number:'1.2-2' }}</p>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Valor Total</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">R$ {{ stats().valorTotal | number:'1.2-2' }}</p>
           </div>
-          <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+          <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
             <span class="text-2xl">💰</span>
           </div>
         </div>
-        <p class="text-xs text-gray-500 mt-3">Patrimônio sob gestão</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">Patrimônio sob gestão</p>
       </div>
     </div>
 
@@ -135,11 +117,11 @@
       <!-- Índices Principais -->
       <div class="card animate-fade-in">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-bold text-gray-900">📊 Índices & Moedas</h3>
+          <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">📊 Índices & Moedas</h3>
           @if (loadingQuotes()) {
             <span class="animate-spin rounded-full h-4 w-4 border-2 border-primary-500 border-t-transparent"></span>
           } @else {
-            <span class="text-xs text-gray-500">Atualizado agora</span>
+            <span class="text-xs text-gray-500 dark:text-gray-400">Atualizado agora</span>
           }
         </div>
 
@@ -161,17 +143,17 @@
         } @else {
           <div class="space-y-2">
             @for (quote of marketQuotes(); track quote.symbol) {
-              <div class="p-3 hover:bg-gray-50 rounded-lg transition border border-gray-100">
+              <div class="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition border border-gray-100 dark:border-gray-700">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center gap-3">
                     <span class="text-2xl">{{ brapiService.getVariationIcon(quote.regularMarketChange) }}</span>
                     <div>
-                      <p class="font-semibold text-gray-900">{{ quote.shortName }}</p>
-                      <p class="text-xs text-gray-500">{{ quote.symbol }}</p>
+                      <p class="font-semibold text-gray-900 dark:text-gray-100">{{ quote.shortName }}</p>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">{{ quote.symbol }}</p>
                     </div>
                   </div>
                   <div class="text-right">
-                    <p class="font-bold text-gray-900">{{ brapiService.formatPrice(quote.regularMarketPrice, quote.currency) }}</p>
+                    <p class="font-bold text-gray-900 dark:text-gray-100">{{ brapiService.formatPrice(quote.regularMarketPrice, quote.currency) }}</p>
                     <p [class]="brapiService.getVariationClass(quote.regularMarketChange) + ' text-sm font-medium'">
                       {{ brapiService.formatPercent(quote.regularMarketChangePercent) }}
                     </p>
@@ -180,20 +162,20 @@
                 <!-- Mini estatísticas -->
                 <div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-gray-100">
                   <div class="text-xs">
-                    <span class="text-gray-500">Abertura:</span>
-                    <span class="font-medium text-gray-700 ml-1">{{ brapiService.formatPrice(quote.regularMarketOpen, quote.currency) }}</span>
+                    <span class="text-gray-500 dark:text-gray-400">Abertura:</span>
+                    <span class="font-medium text-gray-700 dark:text-gray-300 ml-1">{{ brapiService.formatPrice(quote.regularMarketOpen, quote.currency) }}</span>
                   </div>
                   <div class="text-xs text-right">
-                    <span class="text-gray-500">Anterior:</span>
-                    <span class="font-medium text-gray-700 ml-1">{{ brapiService.formatPrice(quote.regularMarketPreviousClose, quote.currency) }}</span>
+                    <span class="text-gray-500 dark:text-gray-400">Anterior:</span>
+                    <span class="font-medium text-gray-700 dark:text-gray-300 ml-1">{{ brapiService.formatPrice(quote.regularMarketPreviousClose, quote.currency) }}</span>
                   </div>
                   <div class="text-xs">
-                    <span class="text-green-600">▲ Máx:</span>
-                    <span class="font-medium text-gray-700 ml-1">{{ brapiService.formatPrice(quote.regularMarketDayHigh, quote.currency) }}</span>
+                    <span class="text-green-600 dark:text-green-400">▲ Máx:</span>
+                    <span class="font-medium text-gray-700 dark:text-gray-300 ml-1">{{ brapiService.formatPrice(quote.regularMarketDayHigh, quote.currency) }}</span>
                   </div>
                   <div class="text-xs text-right">
-                    <span class="text-red-600">▼ Mín:</span>
-                    <span class="font-medium text-gray-700 ml-1">{{ brapiService.formatPrice(quote.regularMarketDayLow, quote.currency) }}</span>
+                    <span class="text-red-600 dark:text-red-400">▼ Mín:</span>
+                    <span class="font-medium text-gray-700 dark:text-gray-300 ml-1">{{ brapiService.formatPrice(quote.regularMarketDayLow, quote.currency) }}</span>
                   </div>
                 </div>
               </div>
@@ -205,19 +187,17 @@
       <!-- Ações em Destaque -->
       <div class="card animate-fade-in animation-delay-200">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-bold text-gray-900">📈 Ações Gratuitas</h3>
+          <h3 class="text-lg font-bold text-gray-900">📈 Ações em Destaque</h3>
           @if (loadingQuotes()) {
             <span class="animate-spin rounded-full h-4 w-4 border-2 border-primary-500 border-t-transparent"></span>
           } @else {
-            <span class="text-xs text-gray-500 flex items-center gap-1">
-              <span class="text-green-600">⭐</span> Brapi Free Tier
-            </span>
+            <span class="text-xs text-gray-500">B3 - {{ topStocks().length }} ações</span>
           }
         </div>
 
         @if (loadingQuotes()) {
           <div class="space-y-3">
-            @for (i of [1,2,3,4,5,6]; track i) {
+            @for (i of [1,2,3]; track i) {
               <div class="animate-pulse flex items-center justify-between p-2 bg-gray-100 rounded">
                 <div class="h-3 bg-gray-300 rounded w-20"></div>
                 <div class="h-3 bg-gray-300 rounded w-16"></div>
@@ -228,12 +208,11 @@
           <div class="text-center py-6 text-gray-500">
             <p class="text-3xl mb-2">📈</p>
             <p class="text-sm">Carregando ações...</p>
-            <p class="text-xs mt-1">Conectando com B3</p>
           </div>
         } @else {
           <div class="space-y-2">
-            @for (stock of topStocks(); track stock.symbol) {
-              <div class="p-3 hover:bg-gray-50 rounded-lg transition border border-gray-100">
+            @for (stock of getFirstItems(topStocks(), expandedStocks()); track stock.symbol) {
+              <div class="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition border border-gray-100 dark:border-gray-700">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center gap-2">
                     <span class="text-lg">{{ brapiService.getVariationIcon(stock.regularMarketChange) }}</span>
@@ -268,58 +247,96 @@
                 </div>
               </div>
             }
+            
+            @if (hasMoreItems(topStocks(), expandedStocks())) {
+              <button 
+                (click)="toggleExpandStocks()"
+                class="w-full py-2 text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center justify-center gap-1 transition"
+              >
+                Ver mais {{ topStocks().length - 3 }} ações
+                <span class="text-lg">⬇️</span>
+              </button>
+            }
+            @if (canCollapse(topStocks(), expandedStocks())) {
+              <button 
+                (click)="toggleExpandStocks()"
+                class="w-full py-2 text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center justify-center gap-1 transition"
+              >
+                Ver menos
+                <span class="text-lg">⬆️</span>
+              </button>
+            }
           </div>
         }
       </div>
     </div>
 
-    <!-- FIIs e Índices Internacionais -->
+    <!-- Moedas e Índices Internacionais -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <!-- Fundos Imobiliários -->
+      <!-- Câmbio (Moedas) -->
       <div class="card animate-fade-in animation-delay-400">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-bold text-gray-900">🏢 Fundos Imobiliários</h3>
+          <h3 class="text-lg font-bold text-gray-900">💱 Câmbio</h3>
           @if (loadingQuotes()) {
             <span class="animate-spin rounded-full h-4 w-4 border-2 border-primary-500 border-t-transparent"></span>
           } @else {
-            <span class="text-xs text-gray-500">FIIs Populares</span>
+            <span class="text-xs text-gray-500">{{ currencies().length }} moedas</span>
           }
         </div>
 
         @if (loadingQuotes()) {
           <div class="space-y-3">
-            @for (i of [1,2,3,4]; track i) {
+            @for (i of [1,2,3]; track i) {
               <div class="animate-pulse flex items-center justify-between p-3 bg-gray-100 rounded-lg">
                 <div class="h-4 bg-gray-300 rounded w-20"></div>
                 <div class="h-4 bg-gray-300 rounded w-16"></div>
               </div>
             }
           </div>
-        } @else if (fiis().length === 0) {
+        } @else if (currencies().length === 0) {
           <div class="text-center py-6 text-gray-500">
-            <p class="text-3xl mb-2">🏢</p>
-            <p class="text-sm">Carregando FIIs...</p>
+            <p class="text-3xl mb-2">💱</p>
+            <p class="text-sm">Carregando cotações...</p>
           </div>
         } @else {
           <div class="space-y-2">
-            @for (fii of fiis(); track fii.symbol) {
-              <div class="p-3 hover:bg-gray-50 rounded-lg transition border border-gray-100">
+            @for (currency of getFirstItems(currencies(), expandedCurrencies()); track currency.symbol) {
+              <div class="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition border border-gray-100 dark:border-gray-700">
                 <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <span class="text-lg">{{ brapiService.getVariationIcon(fii.regularMarketChange) }}</span>
+                  <div class="flex items-center gap-3">
+                    <span class="text-2xl">{{ brapiService.getVariationIcon(currency.regularMarketChange) }}</span>
                     <div>
-                      <p class="text-sm font-semibold text-gray-900">{{ fii.symbol }}</p>
-                      <p class="text-xs text-gray-500">{{ fii.shortName }}</p>
+                      <p class="font-semibold text-gray-900">{{ currency.shortName }}</p>
+                      <p class="text-xs text-gray-500">{{ currency.symbol }}</p>
                     </div>
                   </div>
                   <div class="text-right">
-                    <p class="text-sm font-bold text-gray-900">R$ {{ fii.regularMarketPrice.toFixed(2) }}</p>
-                    <p [class]="brapiService.getVariationClass(fii.regularMarketChange) + ' text-xs font-medium'">
-                      {{ brapiService.formatPercent(fii.regularMarketChangePercent) }}
+                    <p class="font-bold text-gray-900">{{ brapiService.formatPrice(currency.regularMarketPrice, currency.currency) }}</p>
+                    <p [class]="brapiService.getVariationClass(currency.regularMarketChange) + ' text-sm font-medium'">
+                      {{ brapiService.formatPercent(currency.regularMarketChangePercent) }}
                     </p>
                   </div>
                 </div>
               </div>
+            }
+            
+            @if (hasMoreItems(currencies(), expandedCurrencies())) {
+              <button 
+                (click)="toggleExpandCurrencies()"
+                class="w-full py-2 text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center justify-center gap-1 transition"
+              >
+                Ver mais {{ currencies().length - 3 }} moedas
+                <span class="text-lg">⬇️</span>
+              </button>
+            }
+            @if (canCollapse(currencies(), expandedCurrencies())) {
+              <button 
+                (click)="toggleExpandCurrencies()"
+                class="w-full py-2 text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center justify-center gap-1 transition"
+              >
+                Ver menos
+                <span class="text-lg">⬆️</span>
+              </button>
             }
           </div>
         }
@@ -352,8 +369,8 @@
           </div>
         } @else {
           <div class="space-y-2">
-            @for (index of internationalIndices(); track index.symbol) {
-              <div class="p-3 hover:bg-gray-50 rounded-lg transition border border-gray-100">
+            @for (index of getFirstItems(internationalIndices(), expandedInternational()); track index.symbol) {
+              <div class="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition border border-gray-100 dark:border-gray-700">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-3">
                     <span class="text-2xl">{{ brapiService.getVariationIcon(index.regularMarketChange) }}</span>
@@ -370,6 +387,25 @@
                   </div>
                 </div>
               </div>
+            }
+            
+            @if (hasMoreItems(internationalIndices(), expandedInternational())) {
+              <button 
+                (click)="toggleExpandInternational()"
+                class="w-full py-2 text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center justify-center gap-1 transition"
+              >
+                Ver mais {{ internationalIndices().length - 3 }} índices
+                <span class="text-lg">⬇️</span>
+              </button>
+            }
+            @if (canCollapse(internationalIndices(), expandedInternational())) {
+              <button 
+                (click)="toggleExpandInternational()"
+                class="w-full py-2 text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center justify-center gap-1 transition"
+              >
+                Ver menos
+                <span class="text-lg">⬆️</span>
+              </button>
             }
           </div>
         }

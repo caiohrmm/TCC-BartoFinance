@@ -1,8 +1,9 @@
-import { Component, computed } from '@angular/core';
+import { Component, computed, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToastComponent } from './shared/components/toast/toast.component';
 import { AiChatbotComponent } from './shared/components/ai-chatbot/ai-chatbot.component';
 import { AuthService } from './core/services/auth.service';
+import { ThemeService } from './core/services/theme.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -17,14 +18,20 @@ import { CommonModule } from '@angular/common';
     }
   `
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'BartoFinance';
   
   // Usa computed para reagir às mudanças do AuthService
   isAuthenticated = computed(() => this.authService.isAuthenticated());
 
-  constructor(private authService: AuthService) {
-    // Não precisa de subscription manual, o computed já reage automaticamente
+  constructor(
+    private authService: AuthService,
+    private themeService: ThemeService
+  ) {}
+
+  ngOnInit(): void {
+    // Observa mudanças na preferência do sistema
+    this.themeService.watchSystemPreference();
   }
 }
 
