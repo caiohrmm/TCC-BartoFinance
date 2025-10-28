@@ -23,7 +23,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/investors")
-@Tag(name = "Investidores", description = "Endpoints para gerenciamento de investidores")
+@Tag(name = "👥 Investidores", description = "Gestão completa de investidores/clientes")
 @SecurityRequirement(name = "Bearer Authentication")
 @Slf4j
 public class InvestidorController {

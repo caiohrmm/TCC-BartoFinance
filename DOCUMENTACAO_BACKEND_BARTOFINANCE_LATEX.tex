@@ -1,0 +1,1166 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{fontawesome}
+\usepackage{tcolorbox}
+\usepackage{mdframed}
+
+% Configurações da página
+\geometry{margin=2.5cm}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{BartoFinance - Documentação Backend}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Configurações de cores
+\definecolor{primaryblue}{RGB}{0,102,204}
+\definecolor{secondaryblue}{RGB}{51,153,255}
+\definecolor{successgreen}{RGB}{34,139,34}
+\definecolor{warningorange}{RGB}{255,140,0}
+\definecolor{dangerred}{RGB}{220,20,60}
+\definecolor{codegray}{RGB}{245,245,245}
+
+% Configurações de código
+\lstset{
+    backgroundcolor=\color{codegray},
+    commentstyle=\color{gray},
+    keywordstyle=\color{primaryblue},
+    numberstyle=\tiny\color{gray},
+    stringstyle=\color{successgreen},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    frame=single,
+    language=Java
+}
+
+% Configurações de hyperlinks
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primaryblue,
+    filecolor=magenta,      
+    urlcolor=secondaryblue,
+    citecolor=green,
+    bookmarksnumbered=true,
+    bookmarksopen=true,
+    pdfstartview=FitH
+}
+
+% Configurações de títulos
+\titleformat{\section}{\Large\bfseries\color{primaryblue}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\color{secondaryblue}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% Caixas coloridas
+\newtcolorbox{infobox}{
+    colback=blue!5!white,
+    colframe=primaryblue,
+    left=5pt,
+    right=5pt,
+    top=5pt,
+    bottom=5pt,
+    boxrule=0.5pt
+}
+
+\newtcolorbox{successbox}{
+    colback=green!5!white,
+    colframe=successgreen,
+    left=5pt,
+    right=5pt,
+    top=5pt,
+    bottom=5pt,
+    boxrule=0.5pt
+}
+
+\newtcolorbox{warningbox}{
+    colback=orange!5!white,
+    colframe=warningorange,
+    left=5pt,
+    right=5pt,
+    top=5pt,
+    bottom=5pt,
+    boxrule=0.5pt
+}
+
+\newtcolorbox{dangerbox}{
+    colback=red!5!white,
+    colframe=dangerred,
+    left=5pt,
+    right=5pt,
+    top=5pt,
+    bottom=5pt,
+    boxrule=0.5pt
+}
+
+\begin{document}
+
+% Capa
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\Huge\bfseries\color{primaryblue} BartoFinance}\\[0.5cm]
+    {\Large Sistema de Assessoria de Investimentos}\\[1cm]
+    
+    {\huge\bfseries Documentação Completa do Backend}\\[2cm]
+    
+    \begin{infobox}
+        \centering
+        \textbf{Versão:} 1.0.0\\
+        \textbf{Data:} Janeiro 2024\\
+        \textbf{Tecnologias:} Spring Boot 3.2.0, Java 17, MongoDB, JWT, Gemini AI
+    \end{infobox}
+    
+    \vfill
+    
+    \begin{center}
+        \textbf{Desenvolvido com \textcolor{red}{$\heartsuit$} pela equipe BartoFinance}
+    \end{center}
+    
+    \vspace{1cm}
+\end{titlepage}
+
+% Índice
+\tableofcontents
+\newpage
+
+% Introdução
+\section{Visão Geral do Sistema}
+
+O \textbf{BartoFinance} é um sistema completo de assessoria de investimentos desenvolvido em Spring Boot com integração de IA. O sistema permite que assessores financeiros gerenciem seus clientes (investidores), criem carteiras de investimento personalizadas e obtenham insights inteligentes através da API do Google Gemini.
+
+\subsection{Principais Funcionalidades}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Gestão de Assessores}: Cadastro e autenticação de assessores financeiros
+    \item \textbf{Gestão de Investidores}: CRUD completo de clientes com perfis de risco
+    \item \textbf{Carteiras de Investimento}: Criação de carteiras modelo e personalizadas
+    \item \textbf{Aplicações Financeiras}: Registro de investimentos em diferentes produtos
+    \item \textbf{Inteligência Artificial}: Análises e insights gerados pelo Gemini AI
+    \item \textbf{Relatórios}: Geração de relatórios consolidados
+    \item \textbf{Auditoria}: Sistema completo de logs para rastreamento
+\end{itemize}
+
+\section{Arquitetura e Tecnologias}
+
+\subsection{Stack Tecnológico}
+
+O sistema utiliza Spring Boot 3.2.0 com Java 17 como base principal:
+
+\begin{lstlisting}[caption=Dependências principais do pom.xml]
+<!-- Spring Boot Web -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+
+<!-- Spring Boot Data MongoDB -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-mongodb</artifactId>
+</dependency>
+
+<!-- Spring Boot Security -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+
+<!-- JWT -->
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-api</artifactId>
+    <version>0.12.3</version>
+</dependency>
+
+<!-- Google Generative AI SDK -->
+<dependency>
+    <groupId>com.google.genai</groupId>
+    <artifactId>google-genai</artifactId>
+    <version>0.1.0</version>
+</dependency>
+
+<!-- Swagger/OpenAPI -->
+<dependency>
+    <groupId>org.springdoc</groupId>
+    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+    <version>2.3.0</version>
+</dependency>
+\end{lstlisting}
+
+\subsection{Arquitetura do Sistema}
+
+\begin{center}
+\begin{tikzpicture}[node distance=2cm, auto]
+    % Definir estilos
+    \tikzstyle{frontend} = [rectangle, draw, fill=blue!20, text width=3cm, text centered, minimum height=1cm]
+    \tikzstyle{backend} = [rectangle, draw, fill=green!20, text width=3cm, text centered, minimum height=1cm]
+    \tikzstyle{database} = [rectangle, draw, fill=orange!20, text width=3cm, text centered, minimum height=1cm]
+    \tikzstyle{ai} = [rectangle, draw, fill=purple!20, text width=3cm, text centered, minimum height=1cm]
+    
+    % Nós
+    \node (frontend) [frontend] {Frontend\\Angular};
+    \node (backend) [backend, right of=frontend] {Backend\\Spring Boot};
+    \node (database) [database, below of=backend] {MongoDB\\Database};
+    \node (ai) [ai, right of=backend] {Gemini AI\\Google API};
+    
+    % Conexões
+    \draw[<->] (frontend) -- (backend);
+    \draw[<->] (backend) -- (database);
+    \draw[<->] (backend) -- (ai);
+\end{tikzpicture}
+\end{center}
+
+\section{Estrutura do Banco de Dados}
+
+O sistema utiliza \textbf{MongoDB} como banco de dados NoSQL, organizando os dados em coleções específicas:
+
+\subsection{Coleções Principais}
+
+\begin{longtable}{|p{3cm}|p{6cm}|p{5cm}|}
+\hline
+\textbf{Coleção} & \textbf{Descrição} & \textbf{Documentos Relacionados} \\
+\hline
+\endhead
+\texttt{assessores} & Assessores financeiros & - \\
+\hline
+\texttt{investidores} & Clientes dos assessores & \texttt{assessorId} \\
+\hline
+\texttt{portfolios} & Carteiras de investimento & \texttt{assessorId}, \texttt{investidorId} \\
+\hline
+\texttt{aplicacoes} & Aplicações financeiras & \texttt{portfolioId} \\
+\hline
+\texttt{relatorios} & Relatórios consolidados & \texttt{assessorId} \\
+\hline
+\texttt{insights} & Insights gerados por IA & \texttt{investidorId} \\
+\hline
+\texttt{logs} & Logs de auditoria & - \\
+\hline
+\end{longtable}
+
+\subsection{Relacionamentos}
+
+\begin{center}
+\begin{tikzpicture}[node distance=1.5cm, auto]
+    \tikzstyle{entity} = [rectangle, draw, fill=blue!10, text width=2cm, text centered, minimum height=0.8cm]
+    
+    \node (assessor) [entity] {Assessor};
+    \node (investidor) [entity, right of=assessor] {Investidor};
+    \node (portfolio) [entity, below of=investidor] {Portfolio};
+    \node (aplicacao) [entity, right of=portfolio] {Aplicação};
+    
+    \draw[->] (assessor) -- node[above] {1:N} (investidor);
+    \draw[->] (investidor) -- node[right] {1:N} (portfolio);
+    \draw[->] (portfolio) -- node[above] {1:N} (aplicacao);
+\end{tikzpicture}
+\end{center}
+
+\section{Modelos e Entidades}
+
+\subsection{Assessor}
+
+\begin{lstlisting}[caption=Modelo Assessor]
+@Document(collection = "assessores")
+public class Assessor {
+    @Id
+    private String id;
+    
+    private String nome;
+    
+    @Indexed(unique = true)
+    private String email;
+    
+    private String senha; // Criptografada com BCrypt
+    
+    @CreatedDate
+    private LocalDateTime dataCadastro;
+    
+    private LocalDateTime ultimoLogin;
+    
+    @Builder.Default
+    private Boolean ativo = true;
+}
+\end{lstlisting}
+
+\textbf{Funcionalidade}: Representa o usuário principal do sistema (assessor financeiro). Possui autenticação JWT e controle de acesso.
+
+\subsection{Investidor}
+
+\begin{lstlisting}[caption=Modelo Investidor]
+@Document(collection = "investidores")
+public class Investidor {
+    @Id
+    private String id;
+    
+    private String nome;
+    
+    @Indexed(unique = true)
+    private String cpf;
+    
+    private String email;
+    private String telefone;
+    
+    private PerfilInvestidor perfilInvestidor;
+    
+    @Builder.Default
+    private BigDecimal patrimonioAtual = BigDecimal.ZERO;
+    
+    @Builder.Default
+    private BigDecimal rendaMensal = BigDecimal.ZERO;
+    
+    private String objetivos;
+    private String assessorId; // Referência ao Assessor
+    
+    @CreatedDate
+    private LocalDateTime createdAt;
+    
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+}
+\end{lstlisting}
+
+\textbf{Funcionalidade}: Cliente do assessor com perfil de investimento, patrimônio e objetivos financeiros.
+
+\subsection{InvestmentPortfolio (Carteira)}
+
+\begin{lstlisting}[caption=Modelo InvestmentPortfolio]
+@Document(collection = "portfolios")
+public class InvestmentPortfolio {
+    @Id
+    private String id;
+    
+    private String nome;
+    private String descricao;
+    
+    private TipoCarteira tipo; // MODELO ou PERSONALIZADA
+    private RiscoCarteira risco; // BAIXO, MODERADO, ALTO
+    
+    @Builder.Default
+    private BigDecimal metaRentabilidade = BigDecimal.ZERO;
+    
+    @Builder.Default
+    private BigDecimal rentabilidadeAtual = BigDecimal.ZERO;
+    
+    @Builder.Default
+    private BigDecimal valorTotal = BigDecimal.ZERO;
+    
+    private String investidorId; // Nullable para carteiras modelo
+    private String assessorId;
+    
+    @CreatedDate
+    private LocalDateTime createdAt;
+    
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+}
+\end{lstlisting}
+
+\textbf{Funcionalidade}: Carteira de investimentos que pode ser modelo (template) ou personalizada para um investidor específico.
+
+\subsection{Enums Principais}
+
+\subsubsection{PerfilInvestidor}
+
+\begin{lstlisting}[caption=Enum PerfilInvestidor]
+public enum PerfilInvestidor {
+    CONSERVADOR("Conservador - Prioriza segurança e baixo risco"),
+    MODERADO("Moderado - Busca equilíbrio entre segurança e rentabilidade"),
+    AGRESSIVO("Agressivo - Aceita alto risco em busca de maior rentabilidade");
+    
+    private final String descricao;
+    
+    PerfilInvestidor(String descricao) {
+        this.descricao = descricao;
+    }
+    
+    public String getDescricao() {
+        return descricao;
+    }
+}
+\end{lstlisting}
+
+\subsubsection{TipoProduto}
+
+\begin{lstlisting}[caption=Enum TipoProduto]
+public enum TipoProduto {
+    CDB("Certificado de Depósito Bancário"),
+    TESOURO_DIRETO("Tesouro Direto"),
+    ACOES("Ações"),
+    FUNDOS("Fundos de Investimento"),
+    CRIPTOMOEDAS("Criptomoedas"),
+    FII("Fundos Imobiliários"),
+    LCI("Letra de Crédito Imobiliário"),
+    LCA("Letra de Crédito do Agronegócio"),
+    OUTROS("Outros");
+    
+    private final String descricao;
+    
+    TipoProduto(String descricao) {
+        this.descricao = descricao;
+    }
+    
+    public String getDescricao() {
+        return descricao;
+    }
+}
+\end{lstlisting}
+
+\section{Sistema de Autenticação}
+
+\subsection{JWT (JSON Web Token)}
+
+O sistema utiliza JWT para autenticação stateless com as seguintes características:
+
+\subsubsection{Configuração JWT}
+
+\begin{lstlisting}[caption=Configuração JWT no application.yml]
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:BartoFinanceSecretKeyForJWTTokenGenerationAndValidation2024MustBeAtLeast256BitsLong}
+  expiration: 86400000 # 24 horas em millisegundos
+\end{lstlisting}
+
+\subsubsection{Implementação JwtUtil}
+
+\begin{lstlisting}[caption=Classe JwtUtil]
+@Component
+public class JwtUtil {
+    
+    @Value("${jwt.secret}")
+    private String secret;
+    
+    @Value("${jwt.expiration}")
+    private Long expiration;
+    
+    /**
+     * Gera token JWT para o usuário
+     */
+    public String generateToken(String email, String assessorId) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("assessorId", assessorId);
+        return createToken(claims, email);
+    }
+    
+    /**
+     * Valida o token verificando email e expiração
+     */
+    public Boolean validateToken(String token, String email) {
+        final String tokenEmail = extractEmail(token);
+        return (tokenEmail.equals(email) && !isTokenExpired(token));
+    }
+}
+\end{lstlisting}
+
+\subsection{Fluxo de Autenticação}
+
+\begin{enumerate}
+    \item Cliente envia credenciais para \texttt{POST /auth/login}
+    \item AuthService valida credenciais no banco de dados
+    \item Sistema verifica senha usando BCrypt
+    \item JwtUtil gera token JWT com claims do assessor
+    \item Token é retornado para o cliente
+    \item Cliente inclui token no header \texttt{Authorization: Bearer <token>}
+    \item JwtAuthenticationFilter valida token em requisições subsequentes
+\end{enumerate}
+
+\subsection{Criptografia de Senhas}
+
+\begin{lstlisting}[caption=AuthService - Registro com BCrypt]
+@Service
+public class AuthService {
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    
+    public AuthResponse register(RegisterRequest request, String ip) {
+        // Cria o novo assessor com senha criptografada
+        Assessor assessor = Assessor.builder()
+                .nome(request.getNome())
+                .email(request.getEmail())
+                .senha(passwordEncoder.encode(request.getSenha())) // BCrypt
+                .dataCadastro(LocalDateTime.now())
+                .ativo(true)
+                .build();
+        
+        assessor = assessorRepository.save(assessor);
+        
+        // Gera o token JWT
+        String token = jwtUtil.generateToken(assessor.getEmail(), assessor.getId());
+        
+        return AuthResponse.builder()
+                .token(token)
+                .tipo("Bearer")
+                .assessorId(assessor.getId())
+                .nome(assessor.getNome())
+                .email(assessor.getEmail())
+                .mensagem("Assessor registrado com sucesso!")
+                .build();
+    }
+}
+\end{lstlisting}
+
+\section{APIs e Endpoints}
+
+\subsection{Autenticação (\texttt{/auth})}
+
+\subsubsection{POST \texttt{/auth/register}}
+
+\textbf{Descrição}: Registra um novo assessor no sistema
+
+\textbf{Request Body}:
+\begin{lstlisting}[language=json]
+{
+  "nome": "João Silva",
+  "email": "joao@bartofinance.com",
+  "senha": "senha123"
+}
+\end{lstlisting}
+
+\textbf{Response}:
+\begin{lstlisting}[language=json]
+{
+  "sucesso": true,
+  "mensagem": "Assessor registrado com sucesso!",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "tipo": "Bearer",
+    "assessorId": "64f8a1b2c3d4e5f6a7b8c9d0",
+    "nome": "João Silva",
+    "email": "joao@bartofinance.com"
+  },
+  "timestamp": "2024-01-15T10:30:00"
+}
+\end{lstlisting}
+
+\subsubsection{POST \texttt{/auth/login}}
+
+\textbf{Descrição}: Autentica um assessor e retorna o token JWT
+
+\textbf{Request Body}:
+\begin{lstlisting}[language=json]
+{
+  "email": "joao@bartofinance.com",
+  "senha": "senha123"
+}
+\end{lstlisting}
+
+\textbf{Response}: Mesmo formato do registro
+
+\subsection{Investidores (\texttt{/investors})}
+
+\subsubsection{POST \texttt{/investors}}
+
+\textbf{Descrição}: Cria um novo investidor
+
+\textbf{Headers}: \texttt{Authorization: Bearer <token>}
+
+\textbf{Request Body}:
+\begin{lstlisting}[language=json]
+{
+  "nome": "Maria Santos",
+  "cpf": "12345678901",
+  "email": "maria@email.com",
+  "telefone": "(11) 99999-9999",
+  "perfilInvestidor": "MODERADO",
+  "patrimonioAtual": 50000.00,
+  "rendaMensal": 8000.00,
+  "objetivos": "Aposentadoria e reserva de emergência"
+}
+\end{lstlisting}
+
+\subsubsection{GET \texttt{/investors}}
+
+\textbf{Descrição}: Lista todos os investidores do assessor
+
+\textbf{Query Parameters}:
+\begin{itemize}
+    \item \texttt{perfilInvestidor} (opcional): Filtra por perfil específico
+\end{itemize}
+
+\subsection{Carteiras (\texttt{/portfolios})}
+
+\subsubsection{POST \texttt{/portfolios}}
+
+\textbf{Descrição}: Cria uma nova carteira de investimentos
+
+\textbf{Request Body}:
+\begin{lstlisting}[language=json]
+{
+  "nome": "Carteira Conservadora",
+  "descricao": "Carteira focada em segurança",
+  "tipo": "PERSONALIZADA",
+  "risco": "BAIXO",
+  "metaRentabilidade": 8.5,
+  "investidorId": "64f8a1b2c3d4e5f6a7b8c9d1"
+}
+\end{lstlisting}
+
+\subsection{Aplicações (\texttt{/applications})}
+
+\subsubsection{POST \texttt{/applications}}
+
+\textbf{Descrição}: Registra uma nova aplicação financeira
+
+\textbf{Request Body}:
+\begin{lstlisting}[language=json]
+{
+  "portfolioId": "64f8a1b2c3d4e5f6a7b8c9d2",
+  "tipoProduto": "CDB",
+  "codigoAtivo": "CDB123456",
+  "valorAplicado": 10000.00,
+  "quantidade": 1.0,
+  "dataCompra": "2024-01-15T10:30:00",
+  "rentabilidadeAtual": 12.5,
+  "notas": "CDB com liquidez diária"
+}
+\end{lstlisting}
+
+\subsection{Inteligência Artificial (\texttt{/ai})}
+
+\subsubsection{POST \texttt{/ai/analisar-perfil}}
+
+\textbf{Descrição}: Analisa perfil de investidor com IA
+
+\textbf{Request Body}:
+\begin{lstlisting}[language=json]
+{
+  "nome": "Maria Santos",
+  "perfil": "MODERADO",
+  "rendaMensal": 8000.0,
+  "patrimonioAtual": 50000.0
+}
+\end{lstlisting}
+
+\textbf{Response}:
+\begin{lstlisting}[language=json]
+{
+  "sucesso": true,
+  "mensagem": "Análise gerada com sucesso",
+  "data": {
+    "analise": "Para um perfil moderado com renda de R$ 8.000 e patrimônio de R$ 50.000, recomendo uma diversificação equilibrada..."
+  }
+}
+\end{lstlisting}
+
+\section{Serviços e Lógica de Negócio}
+
+\subsection{AuthService}
+
+\begin{lstlisting}[caption=AuthService - Registro de Assessor]
+@Service
+public class AuthService {
+    
+    @Autowired
+    private AssessorRepository assessorRepository;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private JwtUtil jwtUtil;
+    
+    /**
+     * Registra um novo assessor no sistema
+     */
+    public AuthResponse register(RegisterRequest request, String ip) {
+        logger.info("Iniciando registro de novo assessor: {}", request.getEmail());
+
+        // Verifica se o email já existe
+        if (assessorRepository.existsByEmail(request.getEmail())) {
+            logger.warn("Tentativa de registro com email já existente: {}", request.getEmail());
+            throw new BadRequestException("Email já cadastrado no sistema");
+        }
+
+        // Cria o novo assessor
+        Assessor assessor = Assessor.builder()
+                .nome(request.getNome())
+                .email(request.getEmail())
+                .senha(passwordEncoder.encode(request.getSenha()))
+                .dataCadastro(LocalDateTime.now())
+                .ativo(true)
+                .build();
+
+        assessor = assessorRepository.save(assessor);
+
+        // Gera o token JWT
+        String token = jwtUtil.generateToken(assessor.getEmail(), assessor.getId());
+
+        logger.info("Assessor registrado com sucesso: {} (ID: {})", assessor.getEmail(), assessor.getId());
+
+        return AuthResponse.builder()
+                .token(token)
+                .tipo("Bearer")
+                .assessorId(assessor.getId())
+                .nome(assessor.getNome())
+                .email(assessor.getEmail())
+                .mensagem("Assessor registrado com sucesso!")
+                .build();
+    }
+}
+\end{lstlisting}
+
+\textbf{Funcionalidade}: Gerencia autenticação, registro e validação de assessores.
+
+\subsection{InvestidorService}
+
+\begin{lstlisting}[caption=InvestidorService - Criação de Investidor]
+@Service
+@Slf4j
+public class InvestidorService {
+    
+    @Autowired
+    private InvestidorRepository investidorRepository;
+    
+    /**
+     * Cria um novo investidor
+     */
+    public InvestidorResponse criarInvestidor(InvestidorRequest request, String assessorId) {
+        log.info("Criando novo investidor: {} para assessor: {}", request.getNome(), assessorId);
+
+        // Valida CPF único APENAS para este assessor
+        if (investidorRepository.existsByCpfAndAssessorId(request.getCpf(), assessorId)) {
+            throw new BadRequestException("CPF já cadastrado para este assessor");
+        }
+
+        Investidor investidor = Investidor.builder()
+                .nome(request.getNome())
+                .cpf(request.getCpf())
+                .email(request.getEmail())
+                .telefone(request.getTelefone())
+                .perfilInvestidor(request.getPerfilInvestidor())
+                .patrimonioAtual(request.getPatrimonioAtual())
+                .rendaMensal(request.getRendaMensal())
+                .objetivos(request.getObjetivos())
+                .assessorId(assessorId)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        investidor = investidorRepository.save(investidor);
+        log.info("Investidor criado com sucesso: ID {}", investidor.getId());
+
+        return mapToResponse(investidor);
+    }
+}
+\end{lstlisting}
+
+\textbf{Funcionalidade}: Gerencia CRUD de investidores com validações de negócio.
+
+\section{Integração com IA (Gemini)}
+
+\subsection{GeminiAIService}
+
+\begin{lstlisting}[caption=GeminiAIService - Geração de Conteúdo]
+@Service
+@Slf4j
+public class GeminiAIService {
+    
+    @Value("${gemini.api.key}")
+    private String apiKey;
+    
+    @Value("${gemini.api.model:gemini-1.5-flash}")
+    private String model;
+    
+    private final RestTemplate restTemplate = new RestTemplate();
+    private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/";
+    
+    /**
+     * Gera conteúdo usando Gemini AI via REST API
+     */
+    public String generateContent(String prompt) {
+        try {
+            log.info("Enviando requisição para Gemini AI via REST...");
+            
+            // Verificar se a API key é válida
+            if (apiKey == null || apiKey.isEmpty()) {
+                log.warn("API key não configurada, usando fallback");
+                return generateFallbackResponse(prompt);
+            }
+            
+            // Construir URL com API key
+            String url = GEMINI_API_URL + model + ":generateContent?key=" + apiKey;
+            
+            // Construir body da requisição
+            Map<String, Object> requestBody = new HashMap<>();
+            Map<String, Object> part = new HashMap<>();
+            part.put("text", prompt);
+            
+            Map<String, Object> content = new HashMap<>();
+            content.put("parts", Collections.singletonList(part));
+            
+            requestBody.put("contents", Collections.singletonList(content));
+            
+            // Configurar headers
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            
+            // Fazer requisição
+            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
+            
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                // Processar resposta...
+                return extractTextFromResponse(response.getBody());
+            }
+            
+            log.warn("Resposta inválida do Gemini, usando fallback");
+            return generateFallbackResponse(prompt);
+            
+        } catch (Exception e) {
+            log.error("Erro ao se comunicar com Gemini AI: {}", e.getMessage());
+            return generateFallbackResponse(prompt);
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Sistema de Fallback}
+
+O sistema possui um mecanismo robusto de fallback que funciona quando a API do Gemini não está disponível:
+
+\begin{lstlisting}[caption=Sistema de Fallback]
+private String generateFallbackResponse(String prompt) {
+    String lowerPrompt = prompt.toLowerCase().trim();
+    
+    // Saudações e cumprimentos
+    if (lowerPrompt.matches("^(oi|olá|ola|hello|hi|bom dia|boa tarde|boa noite)$")) {
+        return "👋 **Olá! Bem-vindo ao BartoFinance!**\n\n" +
+               "Sou seu assistente virtual especializado em assessoria de investimentos.\n\n" +
+               "Posso ajudar com:\n" +
+               "• 📊 Análise de perfis de investidores\n" +
+               "• 🎯 Estratégias de diversificação\n" +
+               "• 📈 Definição de metas de rentabilidade\n" +
+               "• 🏦 Interpretação de produtos financeiros\n" +
+               "• 💼 Gestão de carteiras\n\n" +
+               "💡 **Como posso auxiliá-lo hoje?**";
+    }
+    
+    // Análise de perfis
+    if (lowerPrompt.contains("perfil") || lowerPrompt.contains("investidor")) {
+        return "📊 **Análise de Perfil de Investidor**\n\n" +
+               "**Conservador**: Prioriza segurança, prefere renda fixa (CDB, Tesouro Direto, LCI/LCA)\n" +
+               "**Moderado**: Equilibra segurança e rentabilidade, diversifica entre renda fixa e variável\n" +
+               "**Agressivo**: Aceita maior risco por maior potencial de retorno, foca em ações e fundos\n\n" +
+               "💡 **Dica**: Analise a tolerância ao risco, objetivos e horizonte de investimento do cliente.";
+    }
+    
+    // Resposta padrão
+    return "🤖 **Assistente BartoFinance**\n\n" +
+           "Entendi sua pergunta! Posso ajudar com:\n\n" +
+           "• 📊 **Perfis de investidor** (Conservador, Moderado, Agressivo)\n" +
+           "• 🎯 **Diversificação** de carteiras\n" +
+           "• 📈 **Metas de rentabilidade** realistas\n" +
+           "• 🏦 **Produtos financeiros** (CDB, Tesouro, Ações, Fundos)\n" +
+           "• ⚖️ **Gestão de risco**\n\n" +
+           "💡 **Seja mais específico na sua pergunta para uma resposta mais detalhada!**";
+}
+\end{lstlisting}
+
+\section{Sistema de Logs e Auditoria}
+
+\subsection{LoggingAspect (AOP)}
+
+O sistema utiliza Aspect-Oriented Programming (AOP) para logging automático de todas as requisições:
+
+\begin{lstlisting}[caption=LoggingAspect - Logging Automático]
+@Aspect
+@Component
+@Slf4j
+public class LoggingAspect {
+    
+    @Autowired
+    private LogRepository logRepository;
+    
+    /**
+     * Intercepta todas as chamadas aos controllers REST
+     */
+    @Around("@within(org.springframework.web.bind.annotation.RestController)")
+    public Object logApiCalls(ProceedingJoinPoint joinPoint) throws Throwable {
+        HttpServletRequest request = getCurrentRequest();
+        if (request == null) {
+            return joinPoint.proceed();
+        }
+        
+        String endpoint = request.getRequestURI();
+        String metodo = request.getMethod();
+        String usuario = getUsuarioAtual();
+        String ip = getClientIp(request);
+        
+        log.debug("Interceptando requisição: {} {} - Usuário: {}", metodo, endpoint, usuario);
+        
+        Integer statusCode = 200;
+        boolean sucesso = true;
+        String mensagem = "Requisição executada com sucesso";
+        
+        try {
+            // Executa o método
+            Object result = joinPoint.proceed();
+            
+            // Tenta inferir status code baseado no resultado
+            if (result != null && result.getClass().getSimpleName().contains("ResponseEntity")) {
+                try {
+                    org.springframework.http.ResponseEntity<?> response = (org.springframework.http.ResponseEntity<?>) result;
+                    statusCode = response.getStatusCode().value();
+                    sucesso = statusCode >= 200 && statusCode < 400;
+                } catch (Exception ex) {
+                    // Ignora se não conseguir extrair
+                }
+            }
+            
+            // Log de sucesso
+            Log logEntry = Log.builder()
+                    .usuario(usuario)
+                    .endpoint(endpoint)
+                    .metodo(metodo)
+                    .ip(ip)
+                    .statusCode(statusCode)
+                    .sucesso(sucesso)
+                    .mensagem(mensagem)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+            
+            logRepository.save(logEntry);
+            log.debug("Log registrado para: {} {} [{}]", metodo, endpoint, statusCode);
+            
+            return result;
+            
+        } catch (Exception e) {
+            // Determina status code baseado no tipo de erro
+            statusCode = determineStatusCode(e);
+            mensagem = "Erro: " + e.getMessage();
+            sucesso = false;
+            
+            // Log de erro
+            Log logEntry = Log.builder()
+                    .usuario(usuario)
+                    .endpoint(endpoint)
+                    .metodo(metodo)
+                    .ip(ip)
+                    .statusCode(statusCode)
+                    .sucesso(sucesso)
+                    .mensagem(mensagem)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+            
+            logRepository.save(logEntry);
+            log.error("Log de erro registrado para: {} {} [{}] - Erro: {}", metodo, endpoint, statusCode, e.getMessage());
+            
+            throw e;
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Modelo de Log}
+
+\begin{lstlisting}[caption=Modelo Log]
+@Document(collection = "logs")
+public class Log {
+    @Id
+    private String id;
+    
+    private String usuario; // Email ou ID do assessor
+    private String endpoint;
+    private String metodo; // GET, POST, PUT, DELETE
+    private String ip;
+    private Integer statusCode; // HTTP Status Code
+    private Boolean sucesso;
+    private String mensagem;
+    
+    @CreatedDate
+    @Builder.Default
+    private LocalDateTime timestamp = LocalDateTime.now();
+}
+\end{lstlisting}
+
+\section{Configurações e Deploy}
+
+\subsection{Configuração Principal (application.yml)}
+
+\begin{lstlisting}[caption=application.yml - Configurações Principais]
+spring:
+  application:
+    name: bartofinance-backend
+  
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/bartofinance
+      # Para MongoDB Atlas (cloud), use o formato:
+      # uri: mongodb+srv://<username>:<password>@cluster.mongodb.net/bartofinance?retryWrites=true&w=majority
+  
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: America/Sao_Paulo
+
+server:
+  port: 8080
+  address: 0.0.0.0 # Aceita conexões de qualquer IP
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:BartoFinanceSecretKeyForJWTTokenGenerationAndValidation2024MustBeAtLeast256BitsLong}
+  expiration: 86400000 # 24 horas em millisegundos
+
+# Gemini AI Configuration
+gemini:
+  api:
+    key: AIzaSyCAJX9yD-xeE9zyTJRxS4naOg9TdlGm_o8
+    model: gemini-2.5-flash
+
+# Swagger/OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+\end{lstlisting}
+
+\subsection{Docker Configuration}
+
+\subsubsection{Dockerfile}
+
+\begin{lstlisting}[caption=Dockerfile]
+FROM openjdk:17-jdk-slim
+
+WORKDIR /app
+
+COPY target/bartofinance-backend-1.0.0.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
+\end{lstlisting}
+
+\subsubsection{docker-compose.yml}
+
+\begin{lstlisting}[caption=docker-compose.yml]
+version: '3.8'
+
+services:
+  bartofinance-backend:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/bartofinance
+      - JWT_SECRET=BartoFinanceSecretKeyForJWTTokenGenerationAndValidation2024MustBeAtLeast256BitsLong
+    depends_on:
+      - mongodb
+    networks:
+      - bartofinance-network
+
+  mongodb:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - bartofinance-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  bartofinance-network:
+    driver: bridge
+\end{lstlisting}
+
+\subsection{Comandos de Deploy}
+
+\begin{lstlisting}[language=bash]
+# Compilar o projeto
+mvn clean package -DskipTests
+
+# Executar localmente
+java -jar target/bartofinance-backend-1.0.0.jar
+
+# Build Docker
+docker build -t bartofinance-backend .
+
+# Executar com Docker Compose
+docker-compose up -d
+
+# Verificar logs
+docker-compose logs -f bartofinance-backend
+\end{lstlisting}
+
+\section{Conclusão}
+
+O \textbf{BartoFinance Backend} é um sistema robusto e completo para assessoria de investimentos, desenvolvido com as melhores práticas de desenvolvimento:
+
+\subsection{Características Principais}
+
+\begin{successbox}
+\begin{itemize}
+    \item \textbf{Arquitetura Moderna}: Spring Boot 3.2.0 com Java 17
+    \item \textbf{Segurança Robusta}: JWT + BCrypt + Spring Security
+    \item \textbf{Banco NoSQL}: MongoDB para flexibilidade e escalabilidade
+    \item \textbf{IA Integrada}: Google Gemini para análises inteligentes
+    \item \textbf{Auditoria Completa}: Sistema de logs com AOP
+    \item \textbf{Documentação Automática}: Swagger/OpenAPI
+    \item \textbf{Fallback Inteligente}: Sistema resiliente quando IA não está disponível
+    \item \textbf{Docker Ready}: Containerização completa
+\end{itemize}
+\end{successbox}
+
+\subsection{Funcionalidades Implementadas}
+
+\begin{itemize}
+    \item ✅ Autenticação e autorização JWT
+    \item ✅ CRUD completo de assessores e investidores
+    \item ✅ Gestão de carteiras modelo e personalizadas
+    \item ✅ Registro de aplicações financeiras
+    \item ✅ Análises de IA com Gemini
+    \item ✅ Sistema de logs e auditoria
+    \item ✅ Relatórios consolidados
+    \item ✅ Validações de negócio
+    \item ✅ Tratamento de exceções global
+    \item ✅ Documentação automática da API
+\end{itemize}
+
+\subsection{Próximos Passos Sugeridos}
+
+\begin{warningbox}
+\begin{enumerate}
+    \item \textbf{Testes Automatizados}: Implementar testes unitários e de integração
+    \item \textbf{Cache}: Adicionar Redis para cache de consultas frequentes
+    \item \textbf{Notificações}: Sistema de notificações em tempo real
+    \item \textbf{Relatórios Avançados}: Dashboards e gráficos
+    \item \textbf{Integração Externa}: APIs de cotações em tempo real
+    \item \textbf{Backup Automático}: Estratégias de backup do MongoDB
+    \item \textbf{Monitoramento}: Métricas e alertas com Prometheus/Grafana
+\end{enumerate}
+\end{warningbox}
+
+\begin{center}
+\textbf{Desenvolvido com \textcolor{red}{$\heartsuit$} pela equipe BartoFinance}\\
+\textit{Documentação gerada automaticamente - Versão 1.0.0}
+\end{center}
+
+\end{document}

@@ -45,6 +45,20 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+    display-operation-id: false
+    default-models-expand-depth: 1
+    default-model-expand-depth: 1
+    doc-expansion: none
+    show-extensions: true
+    show-common-extensions: true
+    try-it-out-enabled: true
+    filter: true
+    deep-linking: true
+    show-tags: true
+    show-request-headers: true
+    show-response-headers: true
 
 # Gemini AI Configuration
 gemini:
